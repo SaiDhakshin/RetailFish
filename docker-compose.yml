@@ -3,6 +3,8 @@ services:
     build:
       context: ./frontend
     container_name: retailfish-frontend
+    volumes:
+      - ./frontend:/src
     restart: unless-stopped
     expose:
       - "${FRONTEND_PORT:-5173}"
@@ -22,14 +24,16 @@ services:
     build:
       context: ./backend
     container_name: retailfish-backend
+    volumes:
+      - ./backend:/app
     restart: unless-stopped
     env_file:
       - .env
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/trading_os}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
-    expose:
-      - "${API_PORT:-8000}"
+    ports:
+      - "${API_PORT}:8000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -38,7 +42,13 @@ services:
     networks:
       - trading-network
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8000/health"]
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')",
+        ]
       interval: 30s
       timeout: 10s
       retries: 5

@@ -1,0 +1,31 @@
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.orm import Session
+
+from app.core.database import get_db
+from app.schemas.candle import CandleResponse
+from app.services.candle_service import CandleService
+
+router = APIRouter(
+    prefix="/candles",
+    tags=["Candles"],
+)
+
+
+@router.get(
+    "",
+    response_model=list[CandleResponse],
+)
+def get_candles(
+    symbol: str,
+    timeframe: str = Query(default="1d"),
+    limit: int = Query(default=500, le=5000),
+    db: Session = Depends(get_db),
+):
+
+    service = CandleService(db)
+
+    return service.get_candles(
+        symbol,
+        timeframe,
+        limit,
+    )

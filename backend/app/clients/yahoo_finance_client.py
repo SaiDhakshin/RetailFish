@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 import time
@@ -55,6 +55,7 @@ class YahooFinanceClient(MarketDataProvider):
         symbol: str,
         timeframe: str,
         limit: int = 500,
+        start: datetime | None = None,
     ) -> list[MarketDataDTO]:
 
         interval = self.INTERVAL_MAP.get(timeframe)
@@ -87,11 +88,23 @@ class YahooFinanceClient(MarketDataProvider):
 
                 df = df.dropna()
 
-                return self._normalize(df.tail(limit))
+                candles = self._normalize(df.tail(limit))
+
+                if start is not None:
+                    candles = [
+                        candle
+                        for candle in candles
+                        if candle.timestamp > start
+                    ]
+
+                return candles[-limit:]
 
             except Exception as exc:
                 last_error = exc
+                # import traceback
 
+                # traceback.print_exc()
+                # raise
                 if attempt < self.MAX_RETRIES - 1:
                     time.sleep(2)
 
@@ -122,9 +135,17 @@ class YahooFinanceClient(MarketDataProvider):
         return candles
 
     @staticmethod
-    def _convert_timestamp(value: Any) -> datetime:
+    def _convert_timestamp(value: datetime | pd.Timestamp) -> datetime:
+        """
+        Convert pandas timestamps into timezone-aware UTC datetimes.
+        """
 
         if isinstance(value, pd.Timestamp):
-            return value.to_pydatetime()
+            value = value.to_pydatetime()
+
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+        else:
+            value = value.astimezone(timezone.utc)
 
         return value

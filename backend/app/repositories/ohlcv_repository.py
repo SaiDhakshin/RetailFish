@@ -9,6 +9,8 @@ from app.models.instrument import Instrument
 
 from sqlalchemy.dialects.postgresql import insert
 
+from sqlalchemy import func
+
 
 class OHLCVRepository:
     def __init__(self, db: Session):
@@ -192,3 +194,24 @@ class OHLCVRepository:
         return list(
             self.db.scalars(stmt).all()
         )
+
+    def get_latest_timestamp(
+        self,
+        instrument_id: int,
+        timeframe: str,
+    ):
+        """
+        Return the latest stored candle timestamp.
+        """
+
+        stmt = (
+            select(
+                func.max(OHLCV.timestamp)
+            )
+            .where(
+                OHLCV.instrument_id == instrument_id,
+                OHLCV.timeframe == timeframe,
+            )
+        )
+
+        return self.db.scalar(stmt)

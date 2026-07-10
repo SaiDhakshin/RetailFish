@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.clients.market_data_provider import MarketDataProvider
@@ -9,6 +9,7 @@ from app.schemas.history import (
     HistoryImportResponse,
 )
 from app.services.historical_sync_service import HistoricalSyncService
+from app.schemas.history_sync import HistorySyncResponse
 
 router = APIRouter(
     prefix="/history",
@@ -35,4 +36,21 @@ def import_history(
         symbol=request.symbol,
         timeframe=request.timeframe,
         limit=request.limit,
+    )
+
+@router.post(
+    "/sync",
+    response_model=HistorySyncResponse,
+)
+def sync_history(
+    symbol: str = Query(...),
+    timeframe: str = Query(default="1d"),
+    db: Session = Depends(get_db),
+):
+    provider = get_market_data_provider()
+    service = HistoricalSyncService(db, provider)
+
+    return service.sync_latest(
+        symbol=symbol,
+        timeframe=timeframe,
     )

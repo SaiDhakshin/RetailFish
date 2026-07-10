@@ -10,6 +10,8 @@ from app.models.instrument import Instrument
 from app.models.ohlcv import OHLCV
 from app.repositories.instrument_repository import InstrumentRepository
 from app.repositories.ohlcv_repository import OHLCVRepository
+from datetime import datetime
+from app.dto.market_data import MarketDataDTO
 
 
 class MarketDataService:
@@ -57,7 +59,16 @@ class MarketDataService:
 
         if candles:
             logger.info("Cache hit for %s", symbol)
-            return candles
+            self.sync_latest(
+                instrument=instrument,
+                timeframe=timeframe,
+            )
+
+            return self.ohlcv_repository.get_candles(
+                instrument_id=instrument.id,
+                timeframe=timeframe,
+                limit=limit,
+            )
 
         logger.info("Cache miss for %s", symbol)
 
@@ -91,13 +102,19 @@ class MarketDataService:
             limit=limit,
         )
 
-        models = MarketDataMapper.to_ohlcv_models(
-            candles=candles,
-            instrument_id=instrument.id,
-            timeframe=timeframe,
-        )
+        if not candles:
+            logger.info(
+                "No historical data found for %s",
+                instrument.symbol,
+            )
 
-        inserted = self.ohlcv_repository.save_bulk(models)
+            return []
+
+        models, inserted = self._save_market_data(
+            instrument=instrument,
+            timeframe=timeframe,
+            candles=candles,
+        )
 
         logger.info(
             "Backfill complete | symbol=%s inserted=%s skipped=%s",
@@ -147,6 +164,30 @@ class MarketDataService:
             "skipped": len(models) - inserted,
         }
 
+    def _save_market_data(
+        self,
+        instrument: Instrument,
+        timeframe: str,
+        candles: list[MarketDataDTO],
+    ) -> tuple[list[OHLCV], int]:
+        """
+        Convert provider DTOs into OHLCV models,
+        persist them, and return the saved models
+        together with the number of inserted rows.
+        """
+
+        models = MarketDataMapper.to_ohlcv_models(
+            candles=candles,
+            instrument_id=instrument.id,
+            timeframe=timeframe,
+        )
+
+        inserted = self.ohlcv_repository.save_bulk(
+            models
+        )
+
+        return models, inserted
+
     def _get_instrument(
         self,
         symbol: str,
@@ -163,3 +204,102 @@ class MarketDataService:
             raise InstrumentNotFoundError(symbol)
 
         return instrument
+    
+    def sync_latest(
+        self,
+        instrument: Instrument,
+        timeframe: str,
+    ) -> dict:
+        """
+        Download only candles newer than the latest
+        candle stored in the database.
+        """
+
+        latest_timestamp = (
+            self.ohlcv_repository.get_latest_timestamp(
+                instrument_id=instrument.id,
+                timeframe=timeframe,
+            )
+        )
+
+        logger.info(
+            "Incremental sync | symbol=%s timeframe=%s latest=%s",
+            instrument.symbol,
+            timeframe,
+            latest_timestamp,
+        )
+
+        candles = self.provider.fetch_historical(
+            symbol=instrument.symbol,
+            timeframe=timeframe,
+            start=latest_timestamp,
+        )
+
+        if not candles:
+            logger.info(
+                "No new candles for %s",
+                instrument.symbol,
+            )
+
+            return {
+                "symbol": instrument.symbol,
+                "timeframe": timeframe,
+                "downloaded": 0,
+                "inserted": 0,
+                "skipped": 0,
+            }
+
+        models, inserted = self._save_market_data(
+            instrument=instrument,
+            timeframe=timeframe,
+            candles=candles,
+        )
+
+        logger.info(
+            "Incremental sync complete | symbol=%s downloaded=%s inserted=%s",
+            instrument.symbol,
+            len(models),
+            inserted,
+        )
+
+        return {
+            "symbol": instrument.symbol,
+            "timeframe": timeframe,
+            "downloaded": len(models),
+            "inserted": inserted,
+            "skipped": len(models) - inserted,
+        }
+    
+    def backfill_by_symbol(
+        self,
+        symbol: str,
+        timeframe: str,
+        limit: int = 500,
+    ) -> list[OHLCV]:
+        """
+        Download and store historical candles for a symbol.
+        """
+
+        instrument = self._get_instrument(symbol)
+
+        return self.backfill(
+            instrument=instrument,
+            timeframe=timeframe,
+            limit=limit,
+        )
+
+    def sync_latest_by_symbol(
+        self,
+        symbol: str,
+        timeframe: str,
+    ) -> dict:
+        """
+        Synchronize only new candles for a symbol.
+        """
+
+        instrument = self._get_instrument(symbol)
+
+        return self.sync_latest(
+            instrument=instrument,
+            timeframe=timeframe,
+        )

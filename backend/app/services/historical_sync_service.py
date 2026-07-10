@@ -29,12 +29,8 @@ class HistoricalSyncService:
         symbol: str,
         timeframe: str,
         limit: int = 500,
-    ) -> dict:
-        """
-        Synchronize historical data for a single instrument.
-        """
-
-        return self.market_data_service.backfill(
+    ):
+        return self.market_data_service.backfill_by_symbol(
             symbol=symbol,
             timeframe=timeframe,
             limit=limit,
@@ -77,3 +73,14 @@ class HistoricalSyncService:
             "skipped": total_skipped,
             "results": results,
         }
+    
+    def sync_latest(
+        self,
+        symbol: str,
+        timeframe: str,
+    ) -> dict:
+        return self.market_data_service.sync_latest_by_symbol(
+            symbol=symbol,
+            timeframe=timeframe,
+        )
+    

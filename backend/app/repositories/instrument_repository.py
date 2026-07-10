@@ -28,6 +28,20 @@ class InstrumentRepository:
 
         return self.db.scalar(stmt)
 
+    def get_all(
+        self,
+    ):
+        stmt = (
+            select(Instrument)
+            .order_by(
+                Instrument.symbol
+            )
+        )
+
+        return list(
+            self.db.scalars(stmt).all()
+        )
+
     def create(
         self,
         symbol: str,

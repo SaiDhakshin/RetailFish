@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any
+from datetime import datetime
 
 from app.dto.market_data import MarketDataDTO
 
@@ -17,6 +18,7 @@ class MarketDataProvider(ABC):
         symbol: str,
         timeframe: str,
         limit: int = 500,
+        start: datetime | None = None,
     ) -> list[MarketDataDTO]:
         """
         Fetch historical OHLCV candles.

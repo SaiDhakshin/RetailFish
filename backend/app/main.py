@@ -2,6 +2,10 @@ from fastapi import FastAPI
 
 from app.api.market_data import router as market_router
 
+from contextlib import asynccontextmanager
+
+from app.core.scheduler import scheduler
+
 from app.api.instruments import (
     router as instrument_router,
 )
@@ -16,10 +20,30 @@ from app.core.exception_handlers import (
     register_exception_handlers,
 )
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Application lifecycle.
+    """
+
+    print(">>> Starting scheduler")
+
+    scheduler.start()
+
+    print(">>> Scheduler started")
+
+    try:
+        yield
+
+    finally:
+        print(">>> Stopping scheduler")
+        scheduler.shutdown(wait=False)
+
 
 app = FastAPI(
     title="Trading OS Backend",
-    version="0.1.0"
+    version="0.2.0",
+    lifespan=lifespan,
 )
 
 app.include_router(market_router)
@@ -40,7 +64,8 @@ def root():
 @app.get("/health")
 def health():
     return {
-        "status": "healthy"
+        "status": "healthy",
+        "scheduler": scheduler.running,
     }
 
 # source .venv/bin/activate

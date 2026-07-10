@@ -112,21 +112,48 @@ RetailFish is designed around these principles:
 
 # Current Release
 
-**Version:** v0.1.0
+**Version:** v0.2.0
 
 ## Completed
 
+### Foundation
+
 - Docker Compose
 - FastAPI backend
-- Vue frontend
+- Vue 3 frontend
 - PostgreSQL
 - Redis
 - Nginx
 - Environment configuration
 - Health check endpoint
-- Production-ready local development environment
+- GitHub Actions CI
 
----
+### Market Data
+
+- NSE instrument import
+- Yahoo Finance provider
+- Binance provider abstraction
+- Historical candle import
+- Automatic history caching
+- Duplicate prevention
+- DTO-based provider architecture
+- Mapper layer
+- Repository pattern
+- Service layer
+
+### APIs
+
+- Instrument Search API
+- Historical Candle API
+- Manual History Import API
+
+### Frontend
+
+- Stock search
+- Debounced search
+- Keyboard navigation
+- TradingView Lightweight Charts
+- Automatic candle loading
 
 # Tech Stack
 
@@ -141,7 +168,11 @@ RetailFish is designed around these principles:
 ## Backend
 
 - FastAPI
-- Python
+- Python 3.12
+- SQLAlchemy
+- Alembic
+- Pydantic
+- yfinance
 
 ## Database
 
@@ -186,21 +217,27 @@ trading-os/
 
 ```text
                     Browser
-                       │
-                       ▼
-                    Nginx
-              ┌────────┴────────┐
-              ▼                 ▼
-        Vue Frontend      FastAPI Backend
-                                │
-                     ┌──────────┴──────────┐
-                     ▼                     ▼
-               PostgreSQL              Redis
+                        │
+                        ▼
+                     Nginx
+               ┌────────┴────────┐
+               ▼                 ▼
+         Vue Frontend      FastAPI Backend
+                                  │
+                 ┌────────────────┴────────────────┐
+                 ▼                                 ▼
+          Service Layer                     Provider Layer
+                 │                                 │
+                 ▼                                 ▼
+         Repository Layer                  Yahoo / Binance
+                 │                                 │
+                 └────────────────┬────────────────┘
+                                  ▼
+                             PostgreSQL
+                                  │
+                                  ▼
+                                Redis
 ```
-
-This architecture is intentionally simple for the early releases and is designed to evolve without major rewrites.
-
----
 
 # Development Principles
 
@@ -242,6 +279,62 @@ Deploy
 
 ---
 
+# Design Patterns
+
+RetailFish currently uses:
+
+- Repository Pattern
+- Service Layer
+- Provider Pattern
+- DTO Pattern
+- Mapper Pattern
+- Dependency Injection
+- Factory Pattern
+
+# Backend Architecture
+
+The backend follows a layered architecture.
+
+```text
+API
+
+↓
+
+Service
+
+↓
+
+Repository
+
+↓
+
+Database
+```
+
+Market data follows a provider-based architecture.
+
+```text
+Provider
+
+↓
+
+DTO
+
+↓
+
+Mapper
+
+↓
+
+Repository
+
+↓
+
+Database
+```
+
+This separation keeps business logic independent of external providers and allows new providers to be added with minimal changes.
+
 # Getting Started
 
 ## Clone the repository
@@ -278,6 +371,26 @@ docker compose up --build
 
 ---
 
+# Core API Endpoints
+
+## Instruments
+
+```http
+GET /api/instruments?q=reli
+```
+
+## Candles
+
+```http
+GET /api/candles?symbol=RELIANCE.NS&timeframe=1d
+```
+
+## Historical Import
+
+```http
+POST /api/history/import
+```
+
 # Roadmap
 
 ## v0.1
@@ -289,16 +402,23 @@ docker compose up --build
 - Database
 - Redis
 
-## v0.2
+## v0.2 ✅
 
-- Market Data
+- NSE Instrument Import
+- Historical Candle Import
+- Yahoo Finance Provider
+- Provider Abstraction
+- TradingView Charts
 - Instrument Search
-- Historical Candles
+- Historical Candle API
 
 ## v0.3
 
-- Charts
-- Multi-timeframe Support
+- Watchlists
+- Multiple Timeframes
+- Technical Indicators
+- Daily Synchronization
+- Redis Caching
 
 ## v0.4
 
@@ -341,6 +461,19 @@ Each sprint must satisfy one rule:
 Features are completed one at a time and deployed before moving to the next sprint.
 
 ---
+
+# Sprint Progress
+
+| Sprint   | Status      | Description             |
+| -------- | ----------- | ----------------------- |
+| Sprint 1 | ✅ Complete | Platform Foundation     |
+| Sprint 2 | ✅ Complete | Market Data & Charts    |
+| Sprint 3 | 🚧 Planned  | Watchlists & Indicators |
+| Sprint 4 | Planned     | Screener                |
+| Sprint 5 | Planned     | Pattern Detection       |
+| Sprint 6 | Planned     | Trading Engine          |
+| Sprint 7 | Planned     | Portfolio               |
+| Sprint 8 | Planned     | AI Research             |
 
 # License
 

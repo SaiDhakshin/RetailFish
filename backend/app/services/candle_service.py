@@ -1,21 +1,34 @@
 from sqlalchemy.orm import Session
 
-from app.repositories.instrument_repository import InstrumentRepository
-from app.repositories.ohlcv_repository import OHLCVRepository
+from app.core.providers import (
+    get_market_data_provider,
+)
+from app.services.market_data_service import (
+    MarketDataService,
+)
 
 
 class CandleService:
     """
-    Service for historical candle retrieval.
+    Read-only candle service.
+
+    Delegates market data lifecycle
+    to MarketDataService.
     """
 
     def __init__(
         self,
         db: Session,
-    ):
+    ) -> None:
 
-        self.instrument_repository = InstrumentRepository(db)
-        self.ohlcv_repository = OHLCVRepository(db)
+        provider = get_market_data_provider()
+
+        self.market_data_service = (
+            MarketDataService(
+                db=db,
+                provider=provider,
+            )
+        )
 
     def get_candles(
         self,
@@ -24,15 +37,8 @@ class CandleService:
         limit: int = 500,
     ):
 
-        instrument = self.instrument_repository.get_by_symbol(
-            symbol
-        )
-
-        if instrument is None:
-            return []
-
-        return self.ohlcv_repository.get_candles(
-            instrument.id,
-            timeframe,
-            limit,
+        return self.market_data_service.ensure_history(
+            symbol=symbol,
+            timeframe=timeframe,
+            limit=limit,
         )

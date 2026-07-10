@@ -10,6 +10,10 @@ import yfinance as yf
 
 from app.clients.market_data_provider import MarketDataProvider
 
+from app.dto.market_data import (
+    MarketDataDTO,
+)
+
 
 class YahooFinanceClient(MarketDataProvider):
     """
@@ -51,7 +55,7 @@ class YahooFinanceClient(MarketDataProvider):
         symbol: str,
         timeframe: str,
         limit: int = 500,
-    ) -> list[dict[str, Any]]:
+    ) -> list[MarketDataDTO]:
 
         interval = self.INTERVAL_MAP.get(timeframe)
 
@@ -81,9 +85,6 @@ class YahooFinanceClient(MarketDataProvider):
                 if isinstance(df.columns, pd.MultiIndex):
                     df.columns = df.columns.get_level_values(0)
 
-                print(df.columns)
-                print(df.head())
-
                 df = df.dropna()
 
                 return self._normalize(df.tail(limit))
@@ -101,21 +102,21 @@ class YahooFinanceClient(MarketDataProvider):
     def _normalize(
         self,
         dataframe: pd.DataFrame,
-    ) -> list[dict[str, Any]]:
+    ) -> list[MarketDataDTO]:
 
-        candles: list[dict[str, Any]] = []
+        candles: list[MarketDataDTO] = []
 
         for timestamp, row in dataframe.iterrows():
 
             candles.append(
-                {
-                    "timestamp": self._convert_timestamp(timestamp),
-                    "open": float(row.Open),
-                    "high": float(row.High),
-                    "low": float(row.Low),
-                    "close": float(row.Close),
-                    "volume": float(row.Volume),
-                }
+                MarketDataDTO(
+                    timestamp=self._convert_timestamp(timestamp),
+                    open=float(row.Open),
+                    high=float(row.High),
+                    low=float(row.Low),
+                    close=float(row.Close),
+                    volume=float(row.Volume),
+                )
             )
 
         return candles

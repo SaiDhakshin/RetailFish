@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vueuse/core": "^14.3.0",
+    "axios": "^1.18.1",
+    "lightweight-charts": "^5.2.0",
     "vue": "^3.5.39"
   },
   "devDependencies": {
@@ -17,6 +20,6 @@
     "@vue/tsconfig": "^0.9.1",
     "typescript": "~6.0.2",
     "vite": "^8.1.1",
-    "vue-tsc": "^3.3.5"
+    "vue-tsc": "^3.3.7"
   }
 }

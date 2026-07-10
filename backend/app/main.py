@@ -12,6 +12,10 @@ from app.api.candles import (
 
 from app.api.history import router as history_router
 
+from app.core.exception_handlers import (
+    register_exception_handlers,
+)
+
 
 app = FastAPI(
     title="Trading OS Backend",
@@ -26,6 +30,8 @@ app.include_router(candle_router)
 
 app.include_router(history_router)
 
+register_exception_handlers(app)
+
 @app.get("/")
 def root():
     return {"message": "RetailFish API"}
@@ -39,3 +45,4 @@ def health():
 
 # source .venv/bin/activate
 # pip freeze > requirements.txt
+#  docker compose exec backend sh

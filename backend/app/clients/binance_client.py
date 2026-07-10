@@ -5,6 +5,10 @@ from app.clients.market_data_provider import MarketDataProvider
 from app.core.config import BINANCE_BASE_URL, REQUEST_TIMEOUT
 from datetime import datetime, UTC
 
+from app.dto.market_data import (
+    MarketDataDTO,
+)
+
 KLINES_ENDPOINT = "/api/v3/klines"
 
 TIMEFRAME_MAP = {
@@ -46,7 +50,7 @@ class BinanceClient(MarketDataProvider):
         symbol: str,
         timeframe: str,
         limit: int = 500,
-    ) -> list[dict]:
+    ) -> list[MarketDataDTO]:
         """
         Fetch historical candles from the market data provider.
 
@@ -164,7 +168,7 @@ class BinanceClient(MarketDataProvider):
             "volume": float(candle[5]),
         }
     
-    def normalize_history(self, candles: list[list]) -> list[dict]:
+    def normalize_history(self, candles: list[list]) -> list[MarketDataDTO]:
         """
         Convert multiple Binance candles into the application's standard format.
         """

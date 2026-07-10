@@ -4,10 +4,11 @@ services:
       context: ./frontend
     container_name: retailfish-frontend
     volumes:
-      - ./frontend:/src
+      - ./frontend:/app
+      - /app/node_modules
     restart: unless-stopped
-    expose:
-      - "${FRONTEND_PORT:-5173}"
+    ports:
+      - "${FRONTEND_PORT}:5173"
     depends_on:
       backend:
         condition: service_healthy

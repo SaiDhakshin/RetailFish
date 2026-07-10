@@ -18,7 +18,7 @@ This is the first user-facing trading feature.
 # Sprint Duration
 
 - Start: 2026-07-08
-- End: _(To be updated)_
+- End: 2026-07-10
 
 ---
 
@@ -26,14 +26,14 @@ This is the first user-facing trading feature.
 
 Sprint 2 is complete when:
 
-- [ ] I can search for a stock.
-- [ ] Search results are loaded from the database.
-- [ ] Historical OHLCV data is stored in PostgreSQL.
-- [ ] Backend API returns historical candles.
-- [ ] Frontend displays a candlestick chart.
-- [ ] Everything works through Docker Compose.
-- [ ] GitHub Actions pass successfully.
-- [ ] Documentation is updated.
+- [x] I can search for a stock.
+- [x] Search results are loaded from the database.
+- [x] Historical OHLCV data is stored in PostgreSQL.
+- [x] Backend API returns historical candles.
+- [x] Frontend displays a candlestick chart.
+- [x] Everything works through Docker Compose.
+- [x] GitHub Actions pass successfully.
+- [x] Documentation is updated.
 
 ---
 
@@ -81,17 +81,17 @@ Create and maintain a master list of tradable instruments.
 
 ### Tasks
 
-- [ ] Design Instrument database table
-- [ ] Download NSE instrument list
-- [ ] Store instruments in PostgreSQL
-- [ ] Create import script
-- [ ] Add indexes
-- [ ] Validate imported data
+- [x] Design Instrument database table
+- [x] Download NSE instrument list
+- [x] Store instruments in PostgreSQL
+- [x] Create import script
+- [x] Add indexes
+- [x] Validate imported data
 
 ### Done When
 
-- [ ] Instrument search works
-- [ ] Instruments are stored in PostgreSQL
+- [x] Instrument search works
+- [x] Instruments are stored in PostgreSQL
 
 ---
 
@@ -103,16 +103,16 @@ Download and store historical OHLCV data.
 
 ### Tasks
 
-- [ ] Select market data provider
-- [ ] Download historical candles
-- [ ] Store OHLCV data
-- [ ] Prevent duplicate records
-- [ ] Handle missing data
-- [ ] Add retry logic
+- [x] Select market data provider
+- [x] Download historical candles
+- [x] Store OHLCV data
+- [x] Prevent duplicate records
+- [x] Handle missing data
+- [x] Add retry logic
 
 ### Done When
 
-- [ ] Historical data exists for selected symbols
+- [x] Historical data exists for selected symbols
 
 ---
 
@@ -124,13 +124,13 @@ Create the market data schema.
 
 ### Tables
 
-- [ ] Instrument
-- [ ] OHLCV
+- [x] Instrument
+- [x] OHLCV
 
 ### Done When
 
-- [ ] Alembic migrations completed
-- [ ] Database migrations succeed
+- [x] Alembic migrations completed
+- [x] Database migrations succeed
 
 ---
 
@@ -149,7 +149,7 @@ Create the service responsible for downloading and retrieving market data.
 
 ### Done When
 
-- [ ] Service can retrieve historical candles
+- [x] Service can retrieve historical candles
 
 ---
 
@@ -163,13 +163,13 @@ GET /api/instruments?q=
 
 ### Tasks
 
-- [ ] Search by symbol
-- [ ] Search by company name
-- [ ] Return matching instruments
+- [x] Search by symbol
+- [x] Search by company name
+- [x] Return matching instruments
 
 ### Done When
 
-- [ ] API returns matching stocks
+- [x] API returns matching stocks
 
 ---
 
@@ -188,7 +188,7 @@ GET /api/candles
 
 ### Done When
 
-- [ ] API returns OHLCV data
+- [x] API returns OHLCV data
 
 ---
 
@@ -200,14 +200,14 @@ Allow users to search for instruments.
 
 ### Tasks
 
-- [ ] Search input
-- [ ] Debounced search
-- [ ] Search results
-- [ ] Select instrument
+- [x] Search input
+- [x] Debounced search
+- [x] Search results
+- [x] Select instrument
 
 ### Done When
 
-- [ ] User can select a stock
+- [x] User can select a stock
 
 ---
 
@@ -219,15 +219,15 @@ Display historical candles.
 
 ### Tasks
 
-- [ ] Integrate TradingView Lightweight Charts
-- [ ] Render OHLCV candles
-- [ ] Support resize
-- [ ] Support zoom
-- [ ] Support pan
+- [x] Integrate TradingView Lightweight Charts
+- [x] Render OHLCV candles
+- [x] Support resize
+- [x] Support zoom
+- [x] Support pan
 
 ### Done When
 
-- [ ] Candlestick chart displays correctly
+- [x] Candlestick chart displays correctly
 
 ---
 
@@ -355,16 +355,16 @@ The sprint is successful if:
 
 ## What went well?
 
-_To be completed at the end of the sprint._
+Fetching and storing OHLCV and rendering went well.
 
 ## What slowed me down?
 
-_To be completed at the end of the sprint._
+When chaning code to from fixed binance to support yahoo felt like giving up.
 
 ## Lessons Learned
 
-_To be completed at the end of the sprint._
+Push through
 
 ## Improvements for Sprint 3
 
-_To be completed at the end of the sprint._
+Watchlists.

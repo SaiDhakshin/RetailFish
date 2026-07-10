@@ -5,6 +5,11 @@ from app.core.database import get_db
 from app.schemas.candle import CandleResponse
 from app.services.candle_service import CandleService
 
+from fastapi import HTTPException
+from app.core.timeframes import SUPPORTED_TIMEFRAMES
+
+from app.core.timeframes import TimeFrame
+
 router = APIRouter(
     prefix="/candles",
     tags=["Candles"],
@@ -17,7 +22,7 @@ router = APIRouter(
 )
 def get_candles(
     symbol: str,
-    timeframe: str = Query(default="1d"),
+    timeframe: TimeFrame = Query(default=TimeFrame.ONE_DAY),
     limit: int = Query(default=500, le=5000),
     db: Session = Depends(get_db),
 ):

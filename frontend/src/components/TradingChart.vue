@@ -22,6 +22,7 @@ import {
 } from "vue";
 
 import type { Candle } from "@/types/candle";
+import type { UTCTimestamp, CandlestickData } from "lightweight-charts";
 
 const props = defineProps<{
   candles: Candle[];
@@ -83,21 +84,28 @@ function renderChart() {
   );
 }
 
+function toChartData(
+  candles: Candle[],
+): CandlestickData<UTCTimestamp>[] {
+  return candles
+    .map((candle) => ({
+      time: Math.floor(
+        new Date(candle.timestamp).getTime() / 1000,
+      ) as UTCTimestamp,
+
+      open: candle.open,
+      high: candle.high,
+      low: candle.low,
+      close: candle.close,
+    }))
+    .sort((a, b) => Number(a.time) - Number(b.time));
+}
+
 function updateChart() {
   if (!candleSeries) return;
 
   candleSeries.setData(
-    props.candles.map((candle) => ({
-      time: candle.timestamp.slice(0, 10),
-
-      open: candle.open,
-
-      high: candle.high,
-
-      low: candle.low,
-
-      close: candle.close,
-    })),
+    toChartData(props.candles),
   );
 
   chart?.timeScale().fitContent();

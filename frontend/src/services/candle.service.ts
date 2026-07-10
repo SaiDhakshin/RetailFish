@@ -1,8 +1,10 @@
 import api from "./api";
 import type { Candle } from "@/types/candle";
+import type { TimeFrame } from "@/types/timeframe";
 
 export async function getCandles(
     symbol: string,
+    timeframe: TimeFrame,
 ) {
     const response =
         await api.get<Candle[]>(
@@ -10,7 +12,7 @@ export async function getCandles(
             {
                 params: {
                     symbol,
-                    timeframe: "1d",
+                    timeframe,
                     limit: 500,
                 },
             },

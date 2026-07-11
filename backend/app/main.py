@@ -14,6 +14,14 @@ from app.api.candles import (
     router as candle_router,
 )
 
+from app.api.watchlists import (
+    router as watchlist_router,
+)
+
+from app.api.quotes import (
+    router as quote_router,
+)
+
 from app.api.history import router as history_router
 
 from app.core.exception_handlers import (
@@ -53,6 +61,10 @@ app.include_router(instrument_router)
 app.include_router(candle_router)
 
 app.include_router(history_router)
+
+app.include_router(watchlist_router)
+
+app.include_router(quote_router)
 
 register_exception_handlers(app)
 

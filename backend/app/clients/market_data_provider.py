@@ -1,15 +1,18 @@
 from abc import ABC, abstractmethod
-from typing import Any
-from datetime import datetime
 
-from app.dto.market_data import MarketDataDTO
+from app.schemas.candle import CandleResponse
+from app.schemas.quote import QuoteResponse
+
 
 class MarketDataProvider(ABC):
     """
-    Abstract interface for all market data providers.
+    Base interface implemented by every market data provider.
 
-    Every provider (Yahoo Finance, Binance, NSE, etc.)
-    must implement this interface.
+    Examples:
+    - Yahoo Finance
+    - Upstox
+    - Polygon.io
+    - Binance
     """
 
     @abstractmethod
@@ -18,24 +21,28 @@ class MarketDataProvider(ABC):
         symbol: str,
         timeframe: str,
         limit: int = 500,
-        start: datetime | None = None,
-    ) -> list[MarketDataDTO]:
+    ) -> list[CandleResponse]:
         """
-        Fetch historical OHLCV candles.
+        Download historical candles.
+        """
+        raise NotImplementedError
 
-        Returns a normalized list of candles.
-
-        Example:
-
-        [
-            {
-                "timestamp": datetime,
-                "open": float,
-                "high": float,
-                "low": float,
-                "close": float,
-                "volume": float,
-            }
-        ]
+    @abstractmethod
+    def fetch_quote(
+        self,
+        symbol: str,
+    ) -> QuoteResponse:
+        """
+        Return the latest market quote.
+        """
+        raise NotImplementedError
+    
+    @abstractmethod
+    def fetch_quotes(
+        self,
+        symbols: list[str],
+    ) -> list[QuoteResponse]:
+        """
+        Return quotes for multiple symbols.
         """
         raise NotImplementedError

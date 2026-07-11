@@ -26,7 +26,7 @@ if settings.HISTORY_SYNC_ENABLED:
     scheduler.add_job(
         func=historical_scheduler.sync_all_daily,
         trigger="interval",
-        minutes=1,
+        minutes=1000,
         id="daily-history-sync",
         replace_existing=True,
         max_instances=1,

@@ -15,6 +15,12 @@ class Instrument(Base):
         cascade="all, delete-orphan",
     )
 
+    watchlist_items = relationship(
+        "WatchlistItem",
+        back_populates="instrument",
+        cascade="all, delete-orphan",
+    )
+
     id: Mapped[int] = mapped_column(primary_key=True)
     symbol: Mapped[str] = mapped_column(String(20), unique=True, index=True)
 

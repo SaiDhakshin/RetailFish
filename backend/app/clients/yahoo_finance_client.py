@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Any
 
 import time
@@ -9,6 +9,8 @@ import pandas as pd
 import yfinance as yf
 
 from app.clients.market_data_provider import MarketDataProvider
+
+from app.schemas.quote import QuoteResponse
 
 from app.dto.market_data import (
     MarketDataDTO,
@@ -111,6 +113,107 @@ class YahooFinanceClient(MarketDataProvider):
         raise RuntimeError(
             f"Unable to download historical data for {symbol}"
         ) from last_error
+
+    def fetch_quote(
+        self,
+        symbol: str,
+    ) -> QuoteResponse:
+        """
+        Return the latest market quote.
+        """
+
+        ticker = yf.Ticker(symbol)
+
+        try:
+
+            info = ticker.fast_info
+
+            price = float(
+                info.get(
+                    "lastPrice",
+                    0,
+                )
+            )
+
+            previous_close = float(
+                info.get(
+                    "previousClose",
+                    price,
+                )
+            )
+
+        except Exception:
+
+            info = ticker.info
+
+            price = float(
+                info.get(
+                    "currentPrice",
+                    0,
+                )
+            )
+
+            previous_close = float(
+                info.get(
+                    "previousClose",
+                    price,
+                )
+            )
+
+        change = (
+            price - previous_close
+        )
+
+        change_percent = (
+            (change / previous_close) * 100
+            if previous_close
+            else 0
+        )
+
+        return QuoteResponse(
+            symbol=symbol,
+            price=price,
+            previous_close=previous_close,
+            change=round(change, 2),
+            change_percent=round(
+                change_percent,
+                2,
+            ),
+            currency="INR",
+            exchange="NSE",
+            timestamp=datetime.now(UTC),
+        )
+
+    def fetch_quotes(
+        self,
+        symbols: list[str],
+    ) -> list[QuoteResponse]:
+        """
+        Return quotes for multiple symbols.
+        """
+
+        quotes = []
+
+        for symbol in symbols:
+
+            try:
+
+                quote = self.fetch_quote(
+                    symbol,
+                )
+
+                quotes.append(
+                    quote,
+                )
+
+            except Exception:
+
+                logger.exception(
+                    "Failed quote for %s",
+                    symbol,
+                )
+
+        return quotes
 
     def _normalize(
         self,

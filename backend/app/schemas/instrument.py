@@ -10,6 +10,7 @@ class InstrumentResponse(BaseModel):
 
     id: int
     symbol: str
+    name: str
 
 
 class InstrumentSearchResponse(BaseModel):

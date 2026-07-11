@@ -30,7 +30,6 @@ export const useWatchlistStore = defineStore("watchlists", {
 
     selectedSymbol: null as string | null,
   }),
-
   actions: {
     async loadWatchlists() {
       this.loading = true;

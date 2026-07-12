@@ -14,6 +14,8 @@
         <div class="chart-container">
           <TimeframeSelector v-model="selectedTimeframe" />
 
+          <IndicatorToolbar />
+
           <SearchBox @selected="onSearchSelected" />
 
           <div class="toolbar">
@@ -40,6 +42,7 @@
 import { ref, watch } from "vue";
 
 import SplitPane from "@/components/layout/SplitPane.vue";
+import IndicatorToolbar from "@/components/IndicatorToolbar.vue";
 
 import SearchBox from "@/components/SearchBox.vue";
 import TimeframeSelector from "@/components/TimeframeSelector.vue";

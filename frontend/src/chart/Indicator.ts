@@ -5,17 +5,16 @@ import type { IndicatorConfig, IndicatorType } from "@/types/indicator";
 
 export interface Indicator {
   /**
-   * Unique indicator id
+   * Unique indicator identifier.
    * Example:
    * ema20
    * ema50
-   * rsi
+   * ema200
    */
   readonly type: IndicatorType;
 
   /**
-   * Create chart series.
-   * Called once.
+   * Called once after registration.
    */
   create(chart: IChartApi): void;
 
@@ -30,12 +29,7 @@ export interface Indicator {
   applyConfig(config: IndicatorConfig): void;
 
   /**
-   * Show / hide indicator.
-   */
-  setVisible(visible: boolean): void;
-
-  /**
-   * Cleanup.
+   * Cleanup resources.
    */
   destroy(): void;
 }

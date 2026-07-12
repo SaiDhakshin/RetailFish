@@ -29,7 +29,9 @@ const labels = {
   ema20: "EMA 20",
   ema50: "EMA 50",
   ema200: "EMA 200",
-};
+  sma20: "SMA 20",
+  sma50: "SMA 50",
+} as const;
 
 function toggle(type: keyof typeof labels) {
   store.toggle(type);

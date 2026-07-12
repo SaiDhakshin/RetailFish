@@ -16,9 +16,11 @@ export class EMAIndicator implements Indicator {
 
   private readonly period: number;
 
-  private series: ISeriesApi<"Line"> | null = null;
-
   private config: IndicatorConfig;
+
+  private chart: IChartApi | null = null;
+
+  private series: ISeriesApi<"Line"> | null = null;
 
   constructor(type: IndicatorType, period: number, config: IndicatorConfig) {
     this.type = type;
@@ -27,13 +29,17 @@ export class EMAIndicator implements Indicator {
   }
 
   create(chart: IChartApi): void {
+    this.chart = chart;
+
+    console.log("Creating", this.type);
+
     this.series = chart.addSeries(LineSeries, {
       color: this.config.style.color,
-
       lineWidth: this.config.style.lineWidth,
+      visible: this.config.enabled,
+      lastValueVisible: false,
+      priceLineVisible: false,
     });
-
-    this.setVisible(this.config.enabled);
   }
 
   update(candles: Candle[]): void {
@@ -43,7 +49,6 @@ export class EMAIndicator implements Indicator {
 
     if (!this.config.enabled) {
       this.series.setData([]);
-
       return;
     }
 
@@ -59,30 +64,21 @@ export class EMAIndicator implements Indicator {
 
     this.series.applyOptions({
       color: config.style.color,
-
       lineWidth: config.style.lineWidth,
+      visible: config.enabled,
     });
 
-    this.setVisible(config.enabled);
-  }
-
-  setVisible(visible: boolean): void {
-    if (!this.series) {
-      return;
+    if (!config.enabled) {
+      this.series.setData([]);
     }
-
-    this.series.applyOptions({
-      visible,
-    });
   }
 
   destroy(): void {
-    /**
-     * Lightweight Charts removes
-     * all series automatically
-     * when chart.remove() is called.
-     *
-     * Nothing required here.
-     */
+    if (this.chart && this.series) {
+      this.chart.removeSeries(this.series);
+    }
+
+    this.series = null;
+    this.chart = null;
   }
 }

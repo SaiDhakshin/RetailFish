@@ -1,21 +1,30 @@
+import type { IChartApi } from "lightweight-charts";
+
 import type { Candle } from "@/types/candle";
 import type { IndicatorConfig, IndicatorType } from "@/types/indicator";
 
 import type { Indicator } from "../Indicator";
 
 export class IndicatorManager {
-  private indicators = new Map<IndicatorType, Indicator>();
+  private readonly chart: IChartApi;
 
-  /**
-   * Register an indicator.
-   */
+  private readonly indicators = new Map<IndicatorType, Indicator>();
+
+  constructor(chart: IChartApi) {
+    this.chart = chart;
+  }
+
   register(indicator: Indicator): void {
+    console.log("IndicatorManager.register", indicator.type);
+    if (this.indicators.has(indicator.type)) {
+      throw new Error(`Indicator '${indicator.type}' already exists.`);
+    }
+
+    indicator.create(this.chart);
+
     this.indicators.set(indicator.type, indicator);
   }
 
-  /**
-   * Remove an indicator.
-   */
   unregister(type: IndicatorType): void {
     const indicator = this.indicators.get(type);
 
@@ -28,33 +37,18 @@ export class IndicatorManager {
     this.indicators.delete(type);
   }
 
-  /**
-   * Update every indicator.
-   */
   update(candles: Candle[]): void {
     for (const indicator of this.indicators.values()) {
       indicator.update(candles);
     }
   }
 
-  /**
-   * Apply new configuration.
-   */
-  applyConfig(type: IndicatorType, config: IndicatorConfig): void {
-    const indicator = this.indicators.get(type);
-
-    if (!indicator) {
-      return;
+  applyConfig(configs: Record<IndicatorType, IndicatorConfig>): void {
+    for (const [type, indicator] of this.indicators) {
+      indicator.applyConfig(configs[type]);
     }
-
-    indicator.applyConfig(config);
-
-    indicator.setVisible(config.enabled);
   }
 
-  /**
-   * Remove everything.
-   */
   destroy(): void {
     for (const indicator of this.indicators.values()) {
       indicator.destroy();

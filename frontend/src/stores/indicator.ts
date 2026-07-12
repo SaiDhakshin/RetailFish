@@ -3,7 +3,7 @@ import { defineStore } from "pinia";
 import type { IndicatorConfig, IndicatorType } from "@/types/indicator";
 import type { LineWidth } from "lightweight-charts";
 
-interface IndicatorState {
+export interface IndicatorState {
   indicators: Record<IndicatorType, IndicatorConfig>;
 }
 
@@ -33,6 +33,23 @@ export const useIndicatorStore = defineStore("indicator", {
         enabled: true,
         style: {
           color: "#F44336",
+          lineWidth: 2,
+        },
+      },
+      sma20: {
+        type: "sma20",
+        enabled: false,
+        style: {
+          color: "#8E24AA",
+          lineWidth: 2,
+        },
+      },
+
+      sma50: {
+        type: "sma50",
+        enabled: false,
+        style: {
+          color: "#009688",
           lineWidth: 2,
         },
       },

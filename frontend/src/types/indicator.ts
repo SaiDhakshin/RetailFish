@@ -1,4 +1,4 @@
-export type IndicatorType = "ema20" | "ema50" | "ema200";
+export type IndicatorType = "ema20" | "ema50" | "ema200" | "sma20" | "sma50";
 import type { LineWidth } from "lightweight-charts";
 
 export interface IndicatorStyle {

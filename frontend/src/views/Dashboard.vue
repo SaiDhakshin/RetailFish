@@ -46,7 +46,8 @@ import IndicatorToolbar from "@/components/IndicatorToolbar.vue";
 
 import SearchBox from "@/components/SearchBox.vue";
 import TimeframeSelector from "@/components/TimeframeSelector.vue";
-import TradingChart from "@/components/TradingChart.vue";
+// import TradingChart from "@/components/TradingChart.vue";
+import TradingChart from "@/chart/TradingChart.vue";
 import WatchlistSidebar from "@/components/WatchlistSidebar.vue";
 import AddToWatchlistDialog from "@/components/AddToWatchlistDialog.vue";
 

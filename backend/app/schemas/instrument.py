@@ -10,7 +10,10 @@ class InstrumentResponse(BaseModel):
 
     id: int
     symbol: str
-    name: str
+    name: str | None = None
+    exchange: str | None = None
+    sector: str | None = None
+    industry: str | None = None
 
 
 class InstrumentSearchResponse(BaseModel):

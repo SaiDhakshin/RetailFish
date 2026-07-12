@@ -23,4 +23,8 @@ class Instrument(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     symbol: Mapped[str] = mapped_column(String(20), unique=True, index=True)
+    exchange: Mapped[str | None] = mapped_column(String(20),nullable=False)
+    name: Mapped[str | None] = mapped_column(String(100),nullable=False)
+    sector: Mapped[str | None] = mapped_column(String(100),nullable=True)
+    industry: Mapped[str | None] = mapped_column(String(100),nullable=True)
 

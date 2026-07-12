@@ -31,7 +31,7 @@ class OHLCV(Base):
         ),
     )
 
-    instrument = relationship(
+    instrument: Mapped["Instrument"] = relationship(
         "Instrument",
         back_populates="candles",
     )
@@ -55,5 +55,3 @@ class OHLCV(Base):
     low: Mapped[float] = mapped_column(Numeric(18, 8))
     close: Mapped[float] = mapped_column(Numeric(18, 8))
     volume: Mapped[float] = mapped_column(Numeric(20, 8))
-
-    instrument = relationship("Instrument")

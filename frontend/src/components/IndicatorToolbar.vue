@@ -1,5 +1,18 @@
 <template>
   <div class="indicator-toolbar">
+    <div class="section">
+      <label class="indicator-item">
+        <input
+          type="checkbox"
+          :checked="chartStore.showVolume"
+          @change="chartStore.toggleVolume()"
+        />
+
+        Volume
+      </label>
+    </div>
+
+    <hr />
     <label
       v-for="indicator in indicators"
       :key="indicator.type"
@@ -21,7 +34,11 @@ import { computed } from "vue";
 
 import { useIndicatorStore } from "@/stores/indicator";
 
+import { useChartStore } from "@/stores/chart";
+
 const store = useIndicatorStore();
+
+const chartStore = useChartStore();
 
 const indicators = computed(() => Object.values(store.indicators));
 
@@ -29,7 +46,9 @@ const labels = {
   ema20: "EMA 20",
   ema50: "EMA 50",
   ema200: "EMA 200",
-};
+  sma20: "SMA 20",
+  sma50: "SMA 50",
+} as const;
 
 function toggle(type: keyof typeof labels) {
   store.toggle(type);

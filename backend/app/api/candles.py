@@ -23,7 +23,7 @@ router = APIRouter(
 def get_candles(
     symbol: str,
     timeframe: TimeFrame = Query(default=TimeFrame.ONE_DAY),
-    limit: int = Query(default=500, le=5000),
+    limit: int = Query(default=1000, le=5000),
     db: Session = Depends(get_db),
 ):
 

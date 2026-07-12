@@ -16,7 +16,7 @@ import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 
 import { useIndicatorStore } from "@/stores/indicator";
 
-import { calculateEMA } from "@/services/indicators/ema";
+import { calculateEMA } from "@/services/calculations/ema";
 
 import type { Candle } from "@/types/candle";
 import type {
@@ -37,11 +37,29 @@ let chart: IChartApi | null = null;
 
 let candleSeries: ISeriesApi<"Candlestick"> | null = null;
 
-let ema20Series: ISeriesApi<"Line"> | null = null;
+const emaConfigs = [
+  {
+    key: "ema20",
+    period: 20,
+  },
+  {
+    key: "ema50",
+    period: 50,
+  },
+  {
+    key: "ema200",
+    period: 200,
+  },
+] as const;
 
-let ema50Series: ISeriesApi<"Line"> | null = null;
-
-let ema200Series: ISeriesApi<"Line"> | null = null;
+const emaSeries: Record<
+  (typeof emaConfigs)[number]["key"],
+  ISeriesApi<"Line"> | null
+> = {
+  ema20: null,
+  ema50: null,
+  ema200: null,
+};
 
 function renderChart() {
   if (!chartContainer.value) return;
@@ -84,23 +102,17 @@ function renderChart() {
 
   candleSeries = chart.addSeries(CandlestickSeries);
 
-  ema20Series = chart.addSeries(LineSeries, {
-    color: indicatorStore.config("ema20").style.color,
+  const periods = [
+    { key: "ema20", period: 20 },
+    { key: "ema50", period: 50 },
+    { key: "ema200", period: 200 },
+  ] as const;
 
-    lineWidth: indicatorStore.config("ema20").style.lineWidth,
-  });
+  for (const { key, period } of periods) {
+    const data = calculateEMA(props.candles, period);
 
-  ema50Series = chart.addSeries(LineSeries, {
-    color: indicatorStore.config("ema50").style.color,
-
-    lineWidth: indicatorStore.config("ema50").style.lineWidth,
-  });
-
-  ema200Series = chart.addSeries(LineSeries, {
-    color: indicatorStore.config("ema200").style.color,
-
-    lineWidth: indicatorStore.config("ema200").style.lineWidth,
-  });
+    emaSeries[key]?.setData(indicatorStore.config(key).enabled ? data : []);
+  }
 
   updateChart();
 
@@ -133,17 +145,13 @@ function updateChart() {
 }
 
 function updateEMA() {
-  const ema20 = calculateEMA(props.candles, 20);
+  for (const config of emaConfigs) {
+    const data = calculateEMA(props.candles, config.period);
 
-  const ema50 = calculateEMA(props.candles, 50);
-
-  const ema200 = calculateEMA(props.candles, 200);
-
-  ema20Series?.setData(indicatorStore.config("ema20").enabled ? ema20 : []);
-
-  ema50Series?.setData(indicatorStore.config("ema50").enabled ? ema50 : []);
-
-  ema200Series?.setData(indicatorStore.config("ema200").enabled ? ema200 : []);
+    emaSeries[config.key]?.setData(
+      indicatorStore.config(config.key).enabled ? data : [],
+    );
+  }
 }
 
 function resizeChart() {

@@ -1,7 +1,9 @@
 import type { Candle } from "@/types/candle";
-
 import type { LineData, UTCTimestamp } from "lightweight-charts";
 
+/**
+ * Calculates an Exponential Moving Average.
+ */
 export function calculateEMA(
   candles: Candle[],
   period: number,
@@ -14,7 +16,7 @@ export function calculateEMA(
 
   let ema = candles[0].close;
 
-  const result: LineData<UTCTimestamp>[] = [];
+  const data: LineData<UTCTimestamp>[] = [];
 
   for (let i = 0; i < candles.length; i++) {
     const candle = candles[i];
@@ -25,7 +27,7 @@ export function calculateEMA(
       ema = (candle.close - ema) * multiplier + ema;
     }
 
-    result.push({
+    data.push({
       time: Math.floor(
         new Date(candle.timestamp).getTime() / 1000,
       ) as UTCTimestamp,
@@ -34,5 +36,5 @@ export function calculateEMA(
     });
   }
 
-  return result;
+  return data;
 }

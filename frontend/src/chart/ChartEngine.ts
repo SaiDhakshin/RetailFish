@@ -6,6 +6,7 @@ import type { IndicatorConfig, IndicatorType } from "@/types/indicator";
 
 import { CandleLayer } from "./layers/CandleLayer";
 import { IndicatorManager } from "./managers/IndicatorManager";
+import { VolumeLayer } from "./layers/VolumeLayer";
 
 export class ChartEngine {
   private readonly container: HTMLElement;
@@ -15,6 +16,8 @@ export class ChartEngine {
   private readonly candleLayer: CandleLayer;
 
   private readonly indicatorManager: IndicatorManager;
+
+  private readonly volumeLayer: VolumeLayer;
 
   private candles: Candle[] = [];
 
@@ -62,6 +65,8 @@ export class ChartEngine {
 
     this.indicatorManager = new IndicatorManager(this.chart);
 
+    this.volumeLayer = new VolumeLayer(this.chart);
+
     this.registerIndicators(indicators);
 
     window.addEventListener("resize", this.handleResize);
@@ -78,6 +83,8 @@ export class ChartEngine {
     this.candles = candles;
 
     this.candleLayer.setData(candles);
+
+    this.volumeLayer.setData(candles);
 
     this.indicatorManager.update(candles);
 
@@ -106,5 +113,9 @@ export class ChartEngine {
     this.indicatorManager.destroy();
 
     this.chart.remove();
+  }
+
+  public setVolumeVisible(visible: boolean): void {
+    this.volumeLayer.setVisible(visible);
   }
 }

@@ -10,6 +10,8 @@ import yfinance as yf
 
 from app.clients.market_data_provider import MarketDataProvider
 
+from app.scanner.indicators.ema import calculate_ema
+
 from app.schemas.quote import QuoteResponse
 
 from app.dto.market_data import (
@@ -78,7 +80,7 @@ class YahooFinanceClient(MarketDataProvider):
                     period=period,
                     interval=interval,
                     progress=False,
-                    auto_adjust=False,
+                    auto_adjust=True,
                     threads=False,
                 )
 

@@ -11,6 +11,8 @@ import { ChartEngine } from "@/chart/ChartEngine";
 
 import { EMAIndicator } from "@/chart/indicators/EMAIndicator";
 
+import { useChartStore } from "@/stores/chart";
+
 import { useIndicatorStore } from "@/stores/indicator";
 
 import { createIndicators } from "@/chart/createIndicators";
@@ -24,6 +26,8 @@ const props = defineProps<{
 const chartContainer = ref<HTMLDivElement | null>(null);
 
 const indicatorStore = useIndicatorStore();
+
+const chartStore = useChartStore();
 
 let engine: ChartEngine | null = null;
 
@@ -43,6 +47,8 @@ onMounted(() => {
   );
 
   console.log("Engine created");
+
+  engine.setVolumeVisible(chartStore.showVolume);
 
   engine.setCandles(props.candles);
 });
@@ -68,6 +74,13 @@ watch(
 
   {
     deep: true,
+  },
+);
+
+watch(
+  () => chartStore.showVolume,
+  (visible) => {
+    engine?.setVolumeVisible(visible);
   },
 );
 

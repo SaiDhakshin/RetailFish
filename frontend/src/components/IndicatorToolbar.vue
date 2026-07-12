@@ -1,5 +1,18 @@
 <template>
   <div class="indicator-toolbar">
+    <div class="section">
+      <label class="indicator-item">
+        <input
+          type="checkbox"
+          :checked="chartStore.showVolume"
+          @change="chartStore.toggleVolume()"
+        />
+
+        Volume
+      </label>
+    </div>
+
+    <hr />
     <label
       v-for="indicator in indicators"
       :key="indicator.type"
@@ -21,7 +34,11 @@ import { computed } from "vue";
 
 import { useIndicatorStore } from "@/stores/indicator";
 
+import { useChartStore } from "@/stores/chart";
+
 const store = useIndicatorStore();
+
+const chartStore = useChartStore();
 
 const indicators = computed(() => Object.values(store.indicators));
 

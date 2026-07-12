@@ -22,6 +22,8 @@ from app.api.quotes import (
     router as quote_router,
 )
 
+from app.scanner.api.scanner import router as scanner_router
+
 from app.api.history import router as history_router
 
 from app.core.exception_handlers import (
@@ -65,6 +67,8 @@ app.include_router(history_router)
 app.include_router(watchlist_router)
 
 app.include_router(quote_router)
+
+app.include_router(scanner_router)
 
 register_exception_handlers(app)
 

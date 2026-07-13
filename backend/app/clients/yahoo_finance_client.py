@@ -58,7 +58,7 @@ class YahooFinanceClient(MarketDataProvider):
         self,
         symbol: str,
         timeframe: str,
-        limit: int = 500,
+        limit: int = 1000,
         start: datetime | None = None,
     ) -> list[MarketDataDTO]:
 

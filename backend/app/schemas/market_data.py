@@ -15,7 +15,7 @@ class BackfillRequest(BaseModel):
     )
 
     limit: int = Field(
-        default=500,
+        default=1000,
         ge=1,
         le=1000,
         description="Number of candles to fetch",

@@ -10,7 +10,7 @@ class Settings(BaseSettings):
 
     DEFAULT_TIMEFRAME: str = "1d"
 
-    DEFAULT_LIMIT: int = 500
+    DEFAULT_LIMIT: int = 1000
 
     YAHOO_TIMEOUT: int = 30
 

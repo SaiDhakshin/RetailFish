@@ -34,7 +34,7 @@ class CandleService:
         self,
         symbol: str,
         timeframe: str,
-        limit: int = 500,
+        limit: int = 1000,
     ):
 
         return self.market_data_service.ensure_history(

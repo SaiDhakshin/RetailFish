@@ -17,16 +17,13 @@ export interface HistoryImportResponse {
 export async function importHistory(
   symbol: string,
   timeframe = "1d",
-  limit = 500,
+  limit = 1000,
 ): Promise<HistoryImportResponse> {
-  const response = await api.post<HistoryImportResponse>(
-    "/history/import",
-    {
-      symbol,
-      timeframe,
-      limit,
-    },
-  );
+  const response = await api.post<HistoryImportResponse>("/history/import", {
+    symbol,
+    timeframe,
+    limit,
+  });
 
   return response.data;
 }

@@ -13,6 +13,11 @@ from app.repositories.ohlcv_repository import OHLCVRepository
 from datetime import datetime
 from app.dto.market_data import MarketDataDTO
 
+from app.core.database import SessionLocal
+
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import as_completed
+
 
 class MarketDataService:
     """
@@ -40,7 +45,7 @@ class MarketDataService:
         self,
         symbol: str,
         timeframe: str,
-        limit: int = 500,
+        limit: int = 1000,
     ) -> list[OHLCV]:
         """
         Return historical candles.
@@ -82,7 +87,7 @@ class MarketDataService:
         self,
         instrument: Instrument,
         timeframe: str,
-        limit: int = 500,
+        limit: int = 1000,
     ) -> list[OHLCV]:
         """
         Download historical candles,
@@ -133,7 +138,7 @@ class MarketDataService:
         self,
         symbol: str,
         timeframe: str,
-        limit: int = 500,
+        limit: int = 1000,
     ) -> dict:
         """
         Backfill history and return a summary.
@@ -274,7 +279,7 @@ class MarketDataService:
         self,
         symbol: str,
         timeframe: str,
-        limit: int = 500,
+        limit: int = 1000,
     ) -> list[OHLCV]:
         """
         Download and store historical candles for a symbol.

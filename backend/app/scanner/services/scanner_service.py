@@ -32,7 +32,7 @@ class ScannerService:
         self,
         scan: Scan,
         timeframe: str = "1d",
-        candle_limit: int = 250,
+        candle_limit: int = 1000,
     ) -> list[ScanResult]:
 
         results: list[ScanResult] = []

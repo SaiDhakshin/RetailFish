@@ -12,7 +12,14 @@ export class CandleLayer {
   private readonly series: ISeriesApi<"Candlestick">;
 
   constructor(chart: IChartApi) {
-    this.series = chart.addSeries(CandlestickSeries);
+    this.series = chart.addSeries(CandlestickSeries, {
+      upColor: "#34c759",
+      downColor: "#ff3b30",
+      borderUpColor: "#34c759",
+      borderDownColor: "#ff3b30",
+      wickUpColor: "#34c759",
+      wickDownColor: "#ff3b30",
+    });
   }
 
   public setData(candles: Candle[]): void {

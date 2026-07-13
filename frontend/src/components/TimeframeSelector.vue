@@ -36,24 +36,33 @@ defineEmits<{
 </script>
 
 <style scoped>
+.timeframe-selector {
+  display: flex;
+  gap: 8px;
+  padding: 12px 1rem;
+}
+
 .timeframe-button {
   padding: 6px 12px;
-  border: 1px solid #d1d5db;
-  background-color: #ffffff;
-  color: #1f2937;
-  border-radius: 6px;
+  border: 1px solid var(--border);
+  background-color: transparent;
+  color: var(--text);
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
+  font-family: var(--mono);
   transition: all 0.2s ease;
 }
 
 .timeframe-button:hover {
-  background-color: #f3f4f6;
+  background-color: rgba(52, 199, 89, 0.05);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .timeframe-button.active {
-  background-color: #2563eb;
-  color: #ffffff;
-  border-color: #2563eb;
+  background-color: rgba(52, 199, 89, 0.15);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 </style>

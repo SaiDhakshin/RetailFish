@@ -33,31 +33,47 @@ export class ChartEngine {
       layout: {
         background: {
           type: ColorType.Solid,
-          color: "#ffffff",
+          color: "#0a0a0b",
         },
-        textColor: "#333333",
+        textColor: "#a1a1a1",
+        fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
       },
 
       grid: {
         vertLines: {
-          color: "#f0f0f0",
+          color: "#1d1d1f",
         },
         horzLines: {
-          color: "#f0f0f0",
+          color: "#1d1d1f",
         },
       },
 
       crosshair: {
         mode: 0,
+        vertLine: {
+          color: "#34c759",
+          width: 1,
+          style: 1,
+        },
+        horzLine: {
+          color: "#34c759",
+          width: 1,
+          style: 1,
+        },
       },
 
       rightPriceScale: {
-        borderVisible: false,
+        borderVisible: true,
+        borderColor: "#1d1d1f",
+        textColor: "#a1a1a1",
       },
 
       timeScale: {
-        borderVisible: false,
+        borderVisible: true,
+        borderColor: "#1d1d1f",
         timeVisible: true,
+        secondsVisible: false,
+        textColor: "#a1a1a1",
       },
     });
 

@@ -89,25 +89,29 @@ onBeforeUnmount(() => {
   display: flex;
   width: 100%;
   height: 100%;
+  background: var(--bg);
 }
 
 .left {
   overflow: auto;
+  background: var(--bg);
 }
 
 .right {
   flex: 1;
   overflow: hidden;
+  background: var(--bg);
 }
 
 .divider {
-  width: 6px;
+  width: 1px;
   cursor: col-resize;
-  background: #2d2d2d;
-  transition: background 0.15s;
+  background: var(--border);
+  transition: all 0.15s;
 }
 
 .divider:hover {
-  background: #4b5563;
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(52, 199, 89, 0.3);
 }
 </style>

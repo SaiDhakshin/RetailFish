@@ -72,45 +72,72 @@ function renderChart() {
     layout: {
       background: {
         type: ColorType.Solid,
-        color: "#ffffff",
+        color: "#0a0a0b",
       },
-      textColor: "#333",
+      textColor: "#a1a1a1",
+      fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
     },
 
     grid: {
       vertLines: {
-        color: "#f0f0f0",
+        color: "#1d1d1f",
       },
       horzLines: {
-        color: "#f0f0f0",
+        color: "#1d1d1f",
       },
     },
 
     crosshair: {
       mode: 0,
+      vertLine: {
+        color: "#34c759",
+        width: 1,
+        style: 1,
+      },
+      horzLine: {
+        color: "#34c759",
+        width: 1,
+        style: 1,
+      },
     },
 
     rightPriceScale: {
-      borderVisible: false,
+      borderVisible: true,
+      borderColor: "#1d1d1f",
+      textColor: "#a1a1a1",
     },
 
     timeScale: {
-      borderVisible: false,
+      borderVisible: true,
+      borderColor: "#1d1d1f",
       timeVisible: true,
+      secondsVisible: false,
+      textColor: "#a1a1a1",
     },
   });
 
-  candleSeries = chart.addSeries(CandlestickSeries);
+  candleSeries = chart.addSeries(CandlestickSeries, {
+    upColor: "#34c759",
+    downColor: "#ff3b30",
+    borderUpColor: "#34c759",
+    borderDownColor: "#ff3b30",
+    wickUpColor: "#34c759",
+    wickDownColor: "#ff3b30",
+  });
 
   const periods = [
-    { key: "ema20", period: 20 },
-    { key: "ema50", period: 50 },
-    { key: "ema200", period: 200 },
+    { key: "ema20", period: 20, color: "#34c759" },
+    { key: "ema50", period: 50, color: "#ff9500" },
+    { key: "ema200", period: 200, color: "#5a5a5e" },
   ] as const;
 
-  for (const { key, period } of periods) {
+  for (const { key, period, color } of periods) {
+    const lineSeries = chart.addSeries(LineSeries, {
+      color: color,
+      lineWidth: 1,
+    });
+    emaSeries[key] = lineSeries;
     const data = calculateEMA(props.candles, period);
-
     emaSeries[key]?.setData(indicatorStore.config(key).enabled ? data : []);
   }
 

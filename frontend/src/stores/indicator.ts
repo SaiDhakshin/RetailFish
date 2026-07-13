@@ -14,8 +14,8 @@ export const useIndicatorStore = defineStore("indicator", {
         type: "ema20",
         enabled: true,
         style: {
-          color: "#2962FF",
-          lineWidth: 2,
+          color: "#34c759",
+          lineWidth: 1,
         },
       },
 
@@ -23,8 +23,8 @@ export const useIndicatorStore = defineStore("indicator", {
         type: "ema50",
         enabled: true,
         style: {
-          color: "#FF9800",
-          lineWidth: 2,
+          color: "#ff9500",
+          lineWidth: 1,
         },
       },
 
@@ -32,16 +32,16 @@ export const useIndicatorStore = defineStore("indicator", {
         type: "ema200",
         enabled: true,
         style: {
-          color: "#F44336",
-          lineWidth: 2,
+          color: "#5a5a5e",
+          lineWidth: 1,
         },
       },
       sma20: {
         type: "sma20",
         enabled: false,
         style: {
-          color: "#8E24AA",
-          lineWidth: 2,
+          color: "#34c759",
+          lineWidth: 1,
         },
       },
 
@@ -49,8 +49,8 @@ export const useIndicatorStore = defineStore("indicator", {
         type: "sma50",
         enabled: false,
         style: {
-          color: "#009688",
-          lineWidth: 2,
+          color: "#ff9500",
+          lineWidth: 1,
         },
       },
     },

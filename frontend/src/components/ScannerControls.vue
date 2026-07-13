@@ -121,20 +121,76 @@ function runScan() {
 .scanner-controls {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+label {
+  font-size: 12px;
+  color: var(--secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: var(--mono);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+label:first-child {
+  margin-top: 0;
 }
 
 select {
-  padding: 0.4rem;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: var(--mono);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  outline: none;
+  transition: all 0.2s;
+}
+
+select:focus {
+  border-color: var(--accent);
+}
+
+select option {
+  background: var(--code-bg);
+  color: var(--text);
+}
+
+input[type="checkbox"] {
+  accent-color: var(--accent);
+  cursor: pointer;
+  margin-right: 6px;
+}
+
+label:has(input[type="checkbox"]) {
+  display: flex;
+  align-items: center;
+  margin-top: 6px;
+  margin-bottom: 0;
+  text-transform: none;
+  font-weight: 400;
+  color: var(--text);
 }
 
 button {
-  padding: 0.6rem;
-  border: none;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: var(--mono);
+  border: 1px solid var(--accent);
   cursor: pointer;
-  background: #2563eb;
-  color: white;
-  border-radius: 6px;
+  background: transparent;
+  color: var(--accent);
+  border-radius: 4px;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+
+button:hover {
+  background: rgba(52, 199, 89, 0.15);
 }
 </style>

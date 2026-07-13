@@ -205,18 +205,37 @@ onBeforeUnmount(() => {
 <style scoped>
 .search-box {
   position: relative;
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
 }
 
 .search-input {
   width: 100%;
-  padding: 10px;
-  font-size: 15px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: var(--mono);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  outline: none;
+  transition: all 0.2s;
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+  background: rgba(52, 199, 89, 0.05);
+}
+
+.search-input::placeholder {
+  color: var(--secondary);
 }
 
 .loading {
   margin-top: 8px;
-  font-size: 14px;
+  font-size: 12px;
+  color: var(--secondary);
+  padding: 8px 12px;
 }
 
 .dropdown {
@@ -228,50 +247,69 @@ onBeforeUnmount(() => {
   padding: 0;
   list-style: none;
   overflow-y: auto;
-  background: white;
-  border: 1px solid #ddd;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
 }
 
 .dropdown li {
-  padding: 12px;
+  padding: 10px 12px;
   cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 1px solid rgba(29, 29, 31, 0.5);
 }
 
-.dropdown li:hover,
+.dropdown li:last-child {
+  border-bottom: none;
+}
+
+.dropdown li:hover {
+  background: rgba(52, 199, 89, 0.1);
+}
+
 .dropdown li.active {
-  background: #f5f5f5;
+  background: rgba(52, 199, 89, 0.15);
+  border-left: 2px solid var(--accent);
+  padding-left: 10px;
 }
 
 .row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
 }
 
 .symbol {
   font-weight: 600;
+  color: var(--text-h);
 }
 
 .name {
   font-size: 12px;
-  color: #777;
+  color: var(--secondary);
 }
 
 .quote {
   text-align: right;
+  min-width: 80px;
+  color: var(--accent);
 }
 
 .positive {
-  color: #16a34a;
+  color: var(--accent);
 }
 
 .negative {
-  color: #dc2626;
+  color: var(--danger);
 }
 
 .empty {
   margin-top: 8px;
-  padding: 10px;
-  border: 1px solid #ddd;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--secondary);
+  text-align: center;
 }
 </style>

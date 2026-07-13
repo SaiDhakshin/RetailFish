@@ -48,7 +48,7 @@ export class VolumeLayer {
 
       value: candle.volume,
 
-      color: candle.close >= candle.open ? "#26A69A" : "#EF5350",
+      color: candle.close >= candle.open ? "#34c759" : "#ff3b30",
     }));
   }
 

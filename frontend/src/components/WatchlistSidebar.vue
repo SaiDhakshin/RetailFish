@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, nextTick } from "vue";
 
 import ScannerControls from "@/components/ScannerControls.vue";
 import ScannerSkeleton from "@/components/ScannerSkeleton.vue";
 
 import { useWatchlistStore } from "@/stores/watchlist";
 import { useScannerStore } from "@/stores/scanner";
+import { useKeyboardShortcuts, scrollElementIntoView } from "@/composables/useKeyboardShortcuts";
 
 import type { Quote } from "@/types/quote";
 import type { ScanRequest } from "@/services/scanner.service";
@@ -173,6 +174,87 @@ async function runScan(request: ScanRequest) {
 }
 
 const selectedSymbol = computed(() => store.selectedSymbol);
+
+const selectedIndex = computed(() => {
+  const current = selectedSymbol.value;
+  if (!current) return -1;
+  return items.value.findIndex((item) => item.symbol === current);
+});
+
+function navigateNext(): void {
+  const nextIndex = selectedIndex.value + 1;
+  if (nextIndex < items.value.length) {
+    const nextItem = items.value[nextIndex];
+    selectSymbol(nextItem);
+    scrollToSelected();
+  }
+}
+
+function navigatePrevious(): void {
+  const prevIndex = selectedIndex.value - 1;
+  if (prevIndex >= 0) {
+    const prevItem = items.value[prevIndex];
+    selectSymbol(prevItem);
+    scrollToSelected();
+  }
+}
+
+function navigateFirst(): void {
+  if (items.value.length > 0) {
+    selectSymbol(items.value[0]);
+    scrollToSelected();
+  }
+}
+
+function navigateLast(): void {
+  if (items.value.length > 0) {
+    selectSymbol(items.value[items.value.length - 1]);
+    scrollToSelected();
+  }
+}
+
+function scrollToSelected(): void {
+  nextTick(() => {
+    const activeElement = document.querySelector(".sidebar .symbol.active");
+    scrollElementIntoView(activeElement as HTMLElement | null);
+  });
+}
+
+function handleAddToWatchlist(): void {
+  if (mode.value === "scanner" && selectedSymbol.value && !isInWatchlist(selectedSymbol.value)) {
+    addToWatchlist(selectedSymbol.value);
+  }
+}
+
+async function handleRemoveFromWatchlist(): void {
+  if (mode.value === "watchlist" && selectedSymbol.value) {
+    const item = store.items.find((i) => i.symbol === selectedSymbol.value);
+    if (item && confirm(`Remove ${selectedSymbol.value} from watchlist?`)) {
+      await store.removeSymbol(item.id);
+    }
+  }
+}
+
+// Initialize keyboard shortcuts
+useKeyboardShortcuts({
+  next: navigateNext,
+  previous: navigatePrevious,
+  first: navigateFirst,
+  last: navigateLast,
+  selectCurrent: () => {}, // Arrow keys already select
+  runScanner: async () => {
+    if (mode.value === "scanner") {
+      // Trigger scanner run via ScannerControls
+      const scanButton = document.querySelector(".sidebar button[type='submit']") as HTMLButtonElement;
+      scanButton?.click();
+    }
+  },
+  showScanner,
+  showWatchlists,
+  addToWatchlist: handleAddToWatchlist,
+  removeFromWatchlist: handleRemoveFromWatchlist,
+  closeDialog: () => {}, // Handled by parent
+});
 </script>
 
 <template>
@@ -180,9 +262,9 @@ const selectedSymbol = computed(() => store.selectedSymbol);
     <div class="header">
       <h2>Watchlists</h2>
     </div>
-    <button @click="showScanner">Scanner</button>
+    <button @click="showScanner" title="Scanner (S)">Scanner</button>
 
-    <button @click="showWatchlists">Watchlists</button>
+    <button @click="showWatchlists" title="Watchlists (W)">Watchlists</button>
 
     <ScannerControls v-if="mode === 'scanner'" @scan="runScan" />
 
@@ -212,6 +294,7 @@ const selectedSymbol = computed(() => store.selectedSymbol);
         :class="{
           active: selectedSymbol === item.symbol,
         }"
+        :title="`${item.symbol} (↑/↓ to navigate)`"
         @click="selectSymbol(item)"
       >
         <div class="top-row">
@@ -228,6 +311,7 @@ const selectedSymbol = computed(() => store.selectedSymbol);
               <button
                 v-if="!isInWatchlist(item.symbol)"
                 class="add-button"
+                :title="`Add to Watchlist (A)`"
                 @click.stop="addToWatchlist(item.symbol)"
               >
                 +

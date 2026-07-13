@@ -33,6 +33,11 @@ function runScan() {
     filters: filters.value,
   });
 }
+
+// Expose runScan method for keyboard shortcuts and parent component calls
+defineExpose({
+  runScan,
+});
 </script>
 
 <template>

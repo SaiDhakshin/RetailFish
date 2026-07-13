@@ -46,6 +46,8 @@ const mode = ref<"watchlist" | "scanner">("watchlist");
 
 let refreshTimer: number | undefined;
 
+const scannerControlsRef = ref<InstanceType<typeof ScannerControls> | null>(null);
+
 onMounted(async () => {
   await store.loadWatchlists();
 
@@ -173,7 +175,13 @@ async function runScan(request: ScanRequest) {
   }
 }
 
-const selectedSymbol = computed(() => store.selectedSymbol);
+// Mode-aware selected symbol: use scanner store in scanner mode, watchlist store otherwise
+const selectedSymbol = computed(() => {
+  if (mode.value === "scanner") {
+    return scannerStore.selectedSymbol;
+  }
+  return store.selectedSymbol;
+});
 
 const selectedIndex = computed(() => {
   const current = selectedSymbol.value;
@@ -243,10 +251,9 @@ useKeyboardShortcuts({
   last: navigateLast,
   selectCurrent: () => {}, // Arrow keys already select
   runScanner: async () => {
-    if (mode.value === "scanner") {
-      // Trigger scanner run via ScannerControls
-      const scanButton = document.querySelector(".sidebar button[type='submit']") as HTMLButtonElement;
-      scanButton?.click();
+    if (mode.value === "scanner" && scannerControlsRef.value) {
+      // Call runScan() directly on ScannerControls component
+      await scannerControlsRef.value.runScan();
     }
   },
   showScanner,
@@ -266,7 +273,7 @@ useKeyboardShortcuts({
 
     <button @click="showWatchlists" title="Watchlists (W)">Watchlists</button>
 
-    <ScannerControls v-if="mode === 'scanner'" @scan="runScan" />
+    <ScannerControls ref="scannerControlsRef" v-if="mode === 'scanner'" @scan="runScan" />
 
     <div v-if="mode === 'watchlist'" class="watchlists">
       <button

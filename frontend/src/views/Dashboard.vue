@@ -96,14 +96,46 @@ watch(selectedTimeframe, async () => {
 <style scoped>
 .dashboard {
   height: 100vh;
+  background: var(--bg);
 }
 
 .chart-container {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 0;
+  padding: 0;
   height: 100%;
   overflow: hidden;
+  background: var(--bg);
+}
+
+.toolbar {
+  padding: 12px 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+}
+
+.toolbar button {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: var(--mono);
+  transition: all 0.2s;
+}
+
+.toolbar button:hover:not(:disabled) {
+  background: rgba(52, 199, 89, 0.08);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.toolbar button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 </style>

@@ -280,42 +280,83 @@ const selectedSymbol = computed(() => store.selectedSymbol);
   height: 100%;
   overflow-y: auto;
   padding: 1rem;
-  background: #171717;
-  border-right: 1px solid #2e2e2e;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  font-family: var(--mono);
 }
 
 .header {
   margin-bottom: 1rem;
 }
 
+.header h2 {
+  font-size: 16px;
+  color: var(--text-h);
+  margin: 0;
+  font-weight: 600;
+}
+
+button {
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+  font-family: var(--mono);
+  margin-bottom: 4px;
+}
+
+button:hover {
+  background: rgba(52, 199, 89, 0.08);
+  border-color: var(--border);
+  color: var(--accent);
+}
+
 .watchlists,
 .symbols {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
+  margin: 0.5rem 0;
 }
 
 .watchlist,
 .symbol {
   width: 100%;
   text-align: left;
-  padding: 0.75rem;
-  border: none;
-  border-radius: 8px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 4px;
   background: transparent;
-  color: inherit;
+  color: var(--text);
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  font-size: 13px;
+  font-family: var(--mono);
 }
 
 .watchlist:hover,
 .symbol:hover {
-  background: #252525;
+  background: rgba(52, 199, 89, 0.08);
+  border-color: var(--border);
+  color: var(--accent);
 }
 
 .watchlist.active {
-  background: #2563eb;
-  color: white;
+  background: rgba(52, 199, 89, 0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.symbol.active {
+  background: rgba(52, 199, 89, 0.15);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .top-row {
@@ -325,48 +366,42 @@ const selectedSymbol = computed(() => store.selectedSymbol);
 }
 
 .bottom-row {
-  margin-top: 0.35rem;
-  font-size: 0.85rem;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--secondary);
 }
 
 .ticker {
   font-weight: 600;
+  color: var(--text-h);
 }
 
 .price {
   font-weight: 500;
+  color: var(--accent);
 }
 
 .loading {
-  color: #888;
-  font-size: 0.8rem;
+  color: var(--secondary);
+  font-size: 12px;
 }
 
 .positive {
-  color: #22c55e;
+  color: var(--accent);
 }
 
 .negative {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .neutral {
-  color: #9ca3af;
+  color: var(--secondary);
 }
 
 hr {
   border: none;
-  border-top: 1px solid #2f2f2f;
-  margin: 1rem 0;
-}
-
-.symbol.active {
-  background: #2563eb;
-  color: white;
-}
-
-.symbol.active:hover {
-  background: #1d4ed8;
+  border-top: 1px solid var(--border);
+  margin: 0.75rem 0;
 }
 
 .symbol.active .positive,
@@ -374,12 +409,12 @@ hr {
 .symbol.active .neutral,
 .symbol.active .loading {
   color: inherit;
-  opacity: 0.9;
+  opacity: 1;
 }
 
 .score {
   font-weight: 600;
-  color: #22c55e;
+  color: var(--accent);
 }
 
 .actions {
@@ -389,64 +424,42 @@ hr {
 }
 
 .add-button {
-  width: 24px;
-  height: 24px;
-
-  border: none;
-
-  border-radius: 50%;
-
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--accent);
+  border-radius: 3px;
   cursor: pointer;
-
-  background: #2563eb;
-
-  color: white;
-
+  background: transparent;
+  color: var(--accent);
   font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
 }
 
 .add-button:hover {
-  background: #1d4ed8;
+  background: rgba(52, 199, 89, 0.15);
 }
 
 .badges {
   display: flex;
-  gap: 0.35rem;
-  margin-top: 0.35rem;
+  gap: 6px;
+  margin-top: 4px;
   flex-wrap: wrap;
 }
 
 .badge {
-  background: #2f2f2f;
-  color: #ddd;
-  font-size: 0.7rem;
-  padding: 2px 8px;
-  border-radius: 999px;
-}
-
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  background: rgba(52, 199, 89, 0.1);
+  color: var(--accent);
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 2px;
+  border: 1px solid rgba(52, 199, 89, 0.2);
 }
 
 .added {
-  color: #22c55e;
+  color: var(--accent);
   font-weight: bold;
-}
-
-.add-button {
-  width: 22px;
-  height: 22px;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  background: #2563eb;
-  color: white;
-  font-weight: bold;
-}
-
-.add-button:hover {
-  background: #1d4ed8;
 }
 </style>

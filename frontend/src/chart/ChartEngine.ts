@@ -21,14 +21,18 @@ export class ChartEngine {
 
   private candles: Candle[] = [];
 
+  private resizeObserver: ResizeObserver | null = null;
+
   constructor(container: HTMLElement, indicators: Indicator[]) {
     this.container = container;
 
     console.log("Creating chart engine");
 
+    const height = container.clientHeight || 400;
+
     this.chart = createChart(container, {
       width: container.clientWidth,
-      height: 600,
+      height: height,
 
       layout: {
         background: {
@@ -86,6 +90,22 @@ export class ChartEngine {
     this.registerIndicators(indicators);
 
     window.addEventListener("resize", this.handleResize);
+
+    this.setupResizeObserver();
+  }
+
+  private setupResizeObserver(): void {
+    this.resizeObserver = new ResizeObserver(() => {
+      const newWidth = this.container.clientWidth;
+      const newHeight = this.container.clientHeight;
+
+      if (newWidth > 0 && newHeight > 0) {
+        console.log("[v0] Chart resizing to:", newWidth, "x", newHeight);
+        this.chart.applyOptions({ width: newWidth, height: newHeight });
+      }
+    });
+
+    this.resizeObserver.observe(this.container);
   }
 
   private registerIndicators(indicators: Indicator[]): void {
@@ -120,11 +140,21 @@ export class ChartEngine {
   }
 
   private handleResize = () => {
-    this.resize(this.container.clientWidth, 600);
+    const width = this.container.clientWidth;
+    const height = this.container.clientHeight;
+
+    if (width > 0 && height > 0) {
+      this.resize(width, height);
+    }
   };
 
   public destroy(): void {
     window.removeEventListener("resize", this.handleResize);
+
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
 
     this.indicatorManager.destroy();
 

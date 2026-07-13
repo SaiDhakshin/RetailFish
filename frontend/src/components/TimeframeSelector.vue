@@ -38,20 +38,24 @@ defineEmits<{
 <style scoped>
 .timeframe-selector {
   display: flex;
-  gap: 8px;
-  padding: 12px 1rem;
+  gap: 4px;
+  padding: 0;
+  margin: 0;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .timeframe-button {
-  padding: 6px 12px;
+  padding: 4px 8px;
   border: 1px solid var(--border);
   background-color: transparent;
   color: var(--text);
   border-radius: 4px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   font-family: var(--mono);
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .timeframe-button:hover {

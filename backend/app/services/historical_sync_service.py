@@ -28,7 +28,7 @@ class HistoricalSyncService:
         self,
         symbol: str,
         timeframe: str,
-        limit: int = 500,
+        limit: int = 1000,
     ):
         return self.market_data_service.backfill_by_symbol(
             symbol=symbol,
@@ -40,7 +40,7 @@ class HistoricalSyncService:
         self,
         symbols: list[str],
         timeframe: str,
-        limit: int = 500,
+        limit: int = 1000,
     ) -> dict:
         """
         Synchronize historical data for multiple instruments.

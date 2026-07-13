@@ -49,7 +49,7 @@ class BinanceClient(MarketDataProvider):
         self,
         symbol: str,
         timeframe: str,
-        limit: int = 500,
+        limit: int = 1000,
     ) -> list[MarketDataDTO]:
         """
         Fetch historical candles from the market data provider.
@@ -94,7 +94,7 @@ class BinanceClient(MarketDataProvider):
         self,
         symbol: str,
         timeframe: str,
-        limit: int = 500,
+        limit: int = 1000,
     ) -> tuple[str, dict]:
         """
         Build the endpoint and query parameters for a historical candle request.

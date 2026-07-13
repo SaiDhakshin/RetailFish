@@ -18,6 +18,14 @@ from app.scanner.strategies.ema_alignment import (
     EMAAlignmentStrategy,
 )
 
+from app.scanner.strategies.volume_breakout import (
+    VolumeBreakoutStrategy,
+)
+
+from app.scanner.strategies.fifty_two_week_high import (
+    FiftyTwoWeekHighStrategy,
+)
+
 router = APIRouter(
     prefix="/scanner",
     tags=["Scanner"],
@@ -39,6 +47,8 @@ def run_scan(
         repository=repository,
         strategies=[
             EMAAlignmentStrategy(),
+            VolumeBreakoutStrategy(),
+            FiftyTwoWeekHighStrategy(),
         ],
     )
 

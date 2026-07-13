@@ -175,7 +175,7 @@ class OHLCVRepository:
         self,
         instrument_id: int,
         timeframe: str,
-        limit: int = 500,
+        limit: int = 1000,
     ) -> list[OHLCV]:
         """
         Return historical candles ordered by timestamp.

@@ -12,14 +12,11 @@
 
       <template #right>
         <div class="chart-container">
-          <TimeframeSelector v-model="selectedTimeframe" />
-
-          <IndicatorToolbar />
-
-          <SearchBox @selected="onSearchSelected" />
-
-          <div class="toolbar">
-            <button :disabled="!selectedSymbol" @click="showDialog = true">
+          <div class="toolbar-header">
+            <TimeframeSelector v-model="selectedTimeframe" />
+            <IndicatorToolbar />
+            <SearchBox @selected="onSearchSelected" />
+            <button :disabled="!selectedSymbol" @click="showDialog = true" class="add-btn">
               Add to Watchlist
             </button>
           </div>
@@ -95,7 +92,8 @@ watch(selectedTimeframe, async () => {
 
 <style scoped>
 .dashboard {
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   background: var(--bg);
 }
 
@@ -104,19 +102,25 @@ watch(selectedTimeframe, async () => {
   flex-direction: column;
   gap: 0;
   padding: 0;
+  width: 100%;
   height: 100%;
   overflow: hidden;
   background: var(--bg);
 }
 
-.toolbar {
-  padding: 12px 1rem;
-  border-bottom: 1px solid var(--border);
+.toolbar-header {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  flex-shrink: 0;
+  min-height: 40px;
+  max-height: 48px;
 }
 
-.toolbar button {
+.add-btn {
   padding: 6px 12px;
   border: 1px solid var(--border);
   background: transparent;
@@ -126,15 +130,16 @@ watch(selectedTimeframe, async () => {
   font-size: 13px;
   font-family: var(--mono);
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
-.toolbar button:hover:not(:disabled) {
+.add-btn:hover:not(:disabled) {
   background: rgba(52, 199, 89, 0.08);
   border-color: var(--accent);
   color: var(--accent);
 }
 
-.toolbar button:disabled {
+.add-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }

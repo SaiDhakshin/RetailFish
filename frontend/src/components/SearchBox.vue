@@ -205,14 +205,14 @@ onBeforeUnmount(() => {
 <style scoped>
 .search-box {
   position: relative;
-  width: 100%;
-  max-width: 400px;
+  width: 200px;
+  flex-shrink: 0;
 }
 
 .search-input {
   width: 100%;
-  padding: 8px 12px;
-  font-size: 13px;
+  padding: 4px 8px;
+  font-size: 12px;
   font-family: var(--mono);
   background: transparent;
   border: 1px solid var(--border);
@@ -220,6 +220,7 @@ onBeforeUnmount(() => {
   color: var(--text);
   outline: none;
   transition: all 0.2s;
+  height: 28px;
 }
 
 .search-input:focus {

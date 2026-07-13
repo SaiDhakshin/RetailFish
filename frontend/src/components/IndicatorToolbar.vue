@@ -58,27 +58,31 @@ function toggle(type: keyof typeof labels) {
 <style scoped>
 .indicator-toolbar {
   display: flex;
-  gap: 1.5rem;
-  padding: 12px 1rem;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg);
+  gap: 12px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 12px;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .section {
   display: flex;
-  gap: 1.5rem;
+  gap: 12px;
+  align-items: center;
 }
 
 .indicator-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text);
   user-select: none;
+  white-space: nowrap;
 }
 
 .indicator-item:hover {
@@ -88,14 +92,15 @@ function toggle(type: keyof typeof labels) {
 .indicator-item input[type="checkbox"] {
   accent-color: var(--accent);
   cursor: pointer;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 hr {
   border: none;
   border-left: 1px solid var(--border);
-  margin: 0 6px;
-  height: auto;
+  margin: 0;
+  height: 20px;
+  flex-shrink: 0;
 }
 </style>

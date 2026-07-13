@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from "vue";
 
 import ScannerControls from "@/components/ScannerControls.vue";
+import ScannerSkeleton from "@/components/ScannerSkeleton.vue";
 
 import { useWatchlistStore } from "@/stores/watchlist";
 import { useScannerStore } from "@/stores/scanner";
@@ -201,7 +202,9 @@ const selectedSymbol = computed(() => store.selectedSymbol);
 
     <hr />
 
-    <div class="symbols">
+    <ScannerSkeleton v-if="mode === 'scanner' && scannerStore.loading" />
+
+    <div v-else class="symbols">
       <button
         v-for="item in items"
         :key="item.symbol"

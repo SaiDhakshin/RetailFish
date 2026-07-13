@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div class="chart-wrapper">
     <div ref="chartContainer" class="chart-container" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 
 import { ChartEngine } from "@/chart/ChartEngine";
 
@@ -58,6 +58,17 @@ watch(
 
   (candles) => {
     engine?.setCandles(candles);
+    
+    // Trigger resize after candles are set
+    nextTick(() => {
+      if (chartContainer.value && engine) {
+        const width = chartContainer.value.clientWidth;
+        const height = chartContainer.value.clientHeight;
+        if (width > 0 && height > 0) {
+          engine.resize(width, height);
+        }
+      }
+    });
   },
 
   {
@@ -90,8 +101,17 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.chart-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+}
+
 .chart-container {
   width: 100%;
-  height: 600px;
+  height: 100%;
+  flex: 1;
 }
 </style>

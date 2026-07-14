@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
-
+from app.scanner.models.scan_detail import (
+    ScanDetail,
+)
 
 @dataclass(slots=True)
 class ScanResult:
@@ -8,3 +10,5 @@ class ScanResult:
     score: int
 
     matched_filters: list[str]
+
+    details: dict[ScanDetail]

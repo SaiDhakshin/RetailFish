@@ -23,6 +23,7 @@ export const ScanFilter = {
   RELATIVE_STRENGTH: "relative_strength",
   CUP_HANDLE: "cup_handle",
   VCP: "vcp",
+  TREND_TEMPLATE: "trend_template",
 } as const;
 
 export type ScanFilter = (typeof ScanFilter)[keyof typeof ScanFilter];

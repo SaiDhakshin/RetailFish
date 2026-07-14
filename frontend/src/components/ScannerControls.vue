@@ -118,6 +118,16 @@ defineExpose({
       VCP
     </label>
 
+    <label>
+      <input
+        type="checkbox"
+        :checked="filters.includes(ScanFilter.TREND_TEMPLATE)"
+        @change="toggleFilter(ScanFilter.TREND_TEMPLATE)"
+      />
+
+      Trend Template
+    </label>
+
     <button @click="runScan">Run Scan</button>
   </div>
 </template>

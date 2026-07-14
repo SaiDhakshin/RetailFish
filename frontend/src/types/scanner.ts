@@ -1,9 +1,16 @@
+export interface ScanDetail {
+  filter: string;
+  value: string;
+}
+
 export interface ScannerResult {
   symbol: string;
 
   score: number;
 
   matched_filters: string[];
+
+  details?: ScanDetail[];
 }
 
 export const ScanUniverse = {

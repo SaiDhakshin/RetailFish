@@ -1,11 +1,7 @@
 from dataclasses import dataclass, field
-
-
-@dataclass(slots=True)
-class ScanDetail:
-    filter: str
-
-    value: str
+from app.scanner.models.scan_detail import (
+    ScanDetail,
+)
 
 
 @dataclass(slots=True)
@@ -16,4 +12,4 @@ class ScanResult:
 
     matched_filters: list[str]
 
-    details: list[ScanDetail] = field(default_factory=list)
+    details: dict[str, ScanDetail] = field(default_factory=dict)

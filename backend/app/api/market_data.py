@@ -27,7 +27,7 @@ def backfill_market_data(
 
     service = MarketDataService(db, provider)
 
-    result = service.backfill(
+    result = service.backfill_summary(
         symbol=request.symbol,
         timeframe=request.timeframe,
         limit=request.limit,

@@ -13,3 +13,5 @@ class ScanFilter(str, Enum):
     CUP_HANDLE = "cup_handle"
 
     VCP = "vcp"
+
+    TREND_TEMPLATE = "trend_template"

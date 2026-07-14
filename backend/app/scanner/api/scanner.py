@@ -26,6 +26,11 @@ from app.scanner.strategies.fifty_two_week_high import (
     FiftyTwoWeekHighStrategy,
 )
 
+from app.scanner.strategies.relative_strength import (
+    RelativeStrengthStrategy,
+)
+from app.scanner.strategies.trend_template import TrendTemplateStrategy
+
 router = APIRouter(
     prefix="/scanner",
     tags=["Scanner"],
@@ -49,6 +54,8 @@ def run_scan(
             EMAAlignmentStrategy(),
             VolumeBreakoutStrategy(),
             FiftyTwoWeekHighStrategy(),
+            RelativeStrengthStrategy(),
+            TrendTemplateStrategy(),
         ],
     )
 

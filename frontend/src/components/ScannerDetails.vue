@@ -13,8 +13,8 @@
       </div>
 
       <div class="details-grid">
-        <div v-for="detail in result.details" :key="detail.filter" class="detail-item">
-          <div class="filter-name">{{ formatFilterName(detail.filter) }}</div>
+        <div v-for="(detail, filterKey) in result.details" :key="filterKey" class="detail-item">
+          <div class="filter-name">{{ formatFilterName(filterKey) }}</div>
           <div class="filter-value">{{ detail.value }}</div>
         </div>
       </div>

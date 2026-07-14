@@ -13,6 +13,8 @@ export const useScannerStore = defineStore("scanner", {
     loading: false,
 
     selectedSymbol: null as string | null,
+
+    selectedResult: null as ScannerResult | null,
   }),
 
   actions: {
@@ -23,7 +25,7 @@ export const useScannerStore = defineStore("scanner", {
         this.results = await runScanner(request);
 
         if (this.results.length > 0) {
-          this.selectedSymbol = this.results[0].symbol;
+          this.selectResult(this.results[0]);
         }
       } finally {
         this.loading = false;
@@ -33,10 +35,21 @@ export const useScannerStore = defineStore("scanner", {
     clear() {
       this.results = [];
       this.selectedSymbol = null;
+      this.selectedResult = null;
     },
 
     selectSymbol(symbol: string) {
       this.selectedSymbol = symbol;
+      // Also update selectedResult for consistency
+      const result = this.results.find((r) => r.symbol === symbol);
+      if (result) {
+        this.selectedResult = result;
+      }
+    },
+
+    selectResult(result: ScannerResult) {
+      this.selectedResult = result;
+      this.selectedSymbol = result.symbol;
     },
   },
 });

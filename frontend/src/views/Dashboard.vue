@@ -22,6 +22,7 @@
           </div>
 
           <TradingChart :candles="candles" />
+          <ScannerDetails :result="scannerResult" />
         </div>
       </template>
     </SplitPane>
@@ -36,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 
 import SplitPane from "@/components/layout/SplitPane.vue";
 import IndicatorToolbar from "@/components/IndicatorToolbar.vue";
@@ -47,12 +48,18 @@ import TimeframeSelector from "@/components/TimeframeSelector.vue";
 import TradingChart from "@/chart/TradingChart.vue";
 import WatchlistSidebar from "@/components/WatchlistSidebar.vue";
 import AddToWatchlistDialog from "@/components/AddToWatchlistDialog.vue";
+import ScannerDetails from "@/components/ScannerDetails.vue";
 
 import { getCandles } from "@/services/candle.service";
+import { useScannerStore } from "@/stores/scanner";
 
 import type { Candle } from "@/types/candle";
 import type { Instrument } from "@/types/instrument";
 import type { TimeFrame } from "@/types/timeframe";
+
+const scannerStore = useScannerStore();
+
+const scannerResult = computed(() => scannerStore.selectedResult);
 
 const candles = ref<Candle[]>([]);
 
@@ -106,6 +113,19 @@ watch(selectedTimeframe, async () => {
   height: 100%;
   overflow: hidden;
   background: var(--bg);
+}
+
+.chart-container > :nth-child(3) {
+  flex: 0 0 auto;
+  overflow-y: auto;
+  max-height: 200px;
+  border-top: 1px solid var(--border);
+}
+
+.chart-container > :nth-child(2) {
+  flex: 1;
+  min-height: 400px;
+  overflow: hidden;
 }
 
 .toolbar-header {

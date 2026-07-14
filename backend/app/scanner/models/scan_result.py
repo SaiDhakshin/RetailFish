@@ -3,6 +3,7 @@ from app.scanner.models.scan_detail import (
     ScanDetail,
 )
 
+
 @dataclass(slots=True)
 class ScanResult:
     symbol: str
@@ -11,4 +12,4 @@ class ScanResult:
 
     matched_filters: list[str]
 
-    details: dict[ScanDetail]
+    details: dict[str, ScanDetail] = field(default_factory=dict)

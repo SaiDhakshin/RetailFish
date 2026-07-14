@@ -3,10 +3,14 @@ import { computed, onMounted, onUnmounted, ref, nextTick } from "vue";
 
 import ScannerControls from "@/components/ScannerControls.vue";
 import ScannerSkeleton from "@/components/ScannerSkeleton.vue";
+import ScannerSort from "@/components/ScannerSort.vue";
 
 import { useWatchlistStore } from "@/stores/watchlist";
 import { useScannerStore } from "@/stores/scanner";
-import { useKeyboardShortcuts, scrollElementIntoView } from "@/composables/useKeyboardShortcuts";
+import {
+  useKeyboardShortcuts,
+  scrollElementIntoView,
+} from "@/composables/useKeyboardShortcuts";
 
 import type { Quote } from "@/types/quote";
 import type { ScanRequest } from "@/services/scanner.service";
@@ -31,10 +35,13 @@ const items = computed<SidebarItem[]>(() => {
     }));
   }
 
-  return scannerStore.results.map((item) => ({
+  return scannerStore.sortedResults.map((item) => ({
     symbol: item.symbol,
     score: item.score,
     matchedFilters: item.matched_filters,
+    relativeStrength: item.relative_strength,
+    volumeRatio: item.volume_ratio,
+    distanceFromHigh: item.distance_from_high,
   }));
 });
 
@@ -46,7 +53,9 @@ const mode = ref<"watchlist" | "scanner">("watchlist");
 
 let refreshTimer: number | undefined;
 
-const scannerControlsRef = ref<InstanceType<typeof ScannerControls> | null>(null);
+const scannerControlsRef = ref<InstanceType<typeof ScannerControls> | null>(
+  null,
+);
 
 onMounted(async () => {
   await store.loadWatchlists();
@@ -168,6 +177,8 @@ function badgeLabel(filter: string) {
 async function runScan(request: ScanRequest) {
   await scannerStore.scan(request);
 
+  await store.loadQuotes(scannerStore.results.map((r) => r.symbol));
+
   if (scannerStore.results.length > 0) {
     scannerStore.selectSymbol(scannerStore.results[0].symbol);
 
@@ -229,7 +240,11 @@ function scrollToSelected(): void {
 }
 
 function handleAddToWatchlist(): void {
-  if (mode.value === "scanner" && selectedSymbol.value && !isInWatchlist(selectedSymbol.value)) {
+  if (
+    mode.value === "scanner" &&
+    selectedSymbol.value &&
+    !isInWatchlist(selectedSymbol.value)
+  ) {
     addToWatchlist(selectedSymbol.value);
   }
 }
@@ -273,7 +288,11 @@ useKeyboardShortcuts({
 
     <button @click="showWatchlists" title="Watchlists (W)">Watchlists</button>
 
-    <ScannerControls ref="scannerControlsRef" v-if="mode === 'scanner'" @scan="runScan" />
+    <ScannerControls
+      ref="scannerControlsRef"
+      v-if="mode === 'scanner'"
+      @scan="runScan"
+    />
 
     <div v-if="mode === 'watchlist'" class="watchlists">
       <button
@@ -288,7 +307,7 @@ useKeyboardShortcuts({
         {{ watchlist.name }}
       </button>
     </div>
-
+    <ScannerSort v-if="mode === 'scanner'" />
     <hr />
 
     <ScannerSkeleton v-if="mode === 'scanner' && scannerStore.loading" />
@@ -337,29 +356,21 @@ useKeyboardShortcuts({
           </div>
         </div>
 
-        <div
-          class="bottom-row"
-          :class="mode === 'watchlist' ? quoteClass(quoteFor(item.symbol)) : ''"
-        >
-          <div v-if="mode === 'scanner'" class="badges">
-            <span
-              v-for="filter in item.matchedFilters"
-              :key="filter"
-              class="badge"
-            >
-              {{ badgeLabel(filter) }}
-            </span>
-          </div>
-
-          <template v-else-if="quoteFor(item.symbol)">
+        <div class="bottom-row" :class="quoteClass(quoteFor(item.symbol))">
+          <template v-if="quoteFor(item.symbol)">
             {{ quoteFor(item.symbol)!.change > 0 ? "+" : "" }}
             {{ quoteFor(item.symbol)!.change.toFixed(2) }}
 
             (
 
             {{ quoteFor(item.symbol)!.change_percent > 0 ? "+" : "" }}
-
             {{ quoteFor(item.symbol)!.change_percent.toFixed(2) }}%)
+
+            <template v-if="mode === 'scanner'">
+              • RS {{ item.relativeStrength?.toFixed(1) }}% • Vol
+              {{ item.volumeRatio?.toFixed(1) }}× • 52W
+              {{ item.distanceFromHigh?.toFixed(1) }}%
+            </template>
           </template>
 
           <template v-else> -- </template>

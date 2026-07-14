@@ -12,4 +12,10 @@ class ScanResult:
 
     matched_filters: list[str]
 
-    details: dict[str, ScanDetail] = field(default_factory=dict)
+    details: list[ScanDetail]
+
+    relative_strength: float = 0
+
+    volume_ratio: float = 0
+
+    distance_from_high: float = 0

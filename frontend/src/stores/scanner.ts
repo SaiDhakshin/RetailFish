@@ -15,7 +15,52 @@ export const useScannerStore = defineStore("scanner", {
     selectedSymbol: null as string | null,
 
     selectedResult: null as ScannerResult | null,
+
+    sortBy: "score" as
+      | "score"
+      | "relative_strength"
+      | "volume_ratio"
+      | "distance_from_high"
+      | "symbol",
+
+    sortDirection: "desc" as "asc" | "desc",
   }),
+
+  getters: {
+    sortedResults(state): ScannerResult[] {
+      const results = [...state.results];
+
+      results.sort((a, b) => {
+        let comparison = 0;
+
+        switch (state.sortBy) {
+          case "score":
+            comparison = a.score - b.score;
+            break;
+
+          case "relative_strength":
+            comparison = a.relative_strength - b.relative_strength;
+            break;
+
+          case "volume_ratio":
+            comparison = a.volume_ratio - b.volume_ratio;
+            break;
+
+          case "distance_from_high":
+            comparison = a.distance_from_high - b.distance_from_high;
+            break;
+
+          case "symbol":
+            comparison = a.symbol.localeCompare(b.symbol);
+            break;
+        }
+
+        return state.sortDirection === "asc" ? comparison : -comparison;
+      });
+
+      return results;
+    },
+  },
 
   actions: {
     async scan(request: ScanRequest) {

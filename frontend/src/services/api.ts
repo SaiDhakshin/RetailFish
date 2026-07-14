@@ -2,5 +2,5 @@ import axios from "axios";
 
 export default axios.create({
   baseURL: "http://localhost/api",
-  timeout: 300000, //5mins
+  timeout: 3000000, //5mins
 });

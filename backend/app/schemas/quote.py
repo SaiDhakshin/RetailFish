@@ -30,3 +30,6 @@ class BulkQuoteResponse(BaseModel):
     """
 
     quotes: list[QuoteResponse]
+
+class BulkQuoteRequest(BaseModel):
+    symbols: list[str]

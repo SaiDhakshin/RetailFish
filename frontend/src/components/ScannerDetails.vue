@@ -13,9 +13,16 @@
       </div>
 
       <div class="details-grid">
-        <div v-for="(detail, filterKey) in result.details" :key="filterKey" class="detail-item">
-          <div class="filter-name">{{ formatFilterName(filterKey) }}</div>
-          <div class="filter-value">{{ detail.value }}</div>
+        <div
+          v-for="detail in result.details"
+          :key="detail.filter"
+          class="detail-item"
+        >
+          <div class="filter-name">✓ {{ detail.filter }}</div>
+
+          <div class="filter-value">
+            {{ detail.value }}
+          </div>
         </div>
       </div>
     </div>
@@ -28,19 +35,6 @@ import type { ScannerResult } from "@/types/scanner";
 defineProps<{
   result: ScannerResult | null;
 }>();
-
-function formatFilterName(filter: string): string {
-  const names: Record<string, string> = {
-    ema_alignment: "EMA Alignment",
-    volume_breakout: "Volume Breakout",
-    relative_strength: "Relative Strength",
-    fifty_two_week_high: "52 Week High",
-    cup_handle: "Cup Handle",
-    vcp: "VCP",
-    trend_template: "Trend Template",
-  };
-  return names[filter] || filter.replace(/_/g, " ");
-}
 </script>
 
 <style scoped>

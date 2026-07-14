@@ -10,7 +10,13 @@ export interface ScannerResult {
 
   matched_filters: string[];
 
-  details?: Record<string, ScanDetail>;
+  details: ScanDetail[];
+
+  relative_strength: number;
+
+  volume_ratio: number;
+
+  distance_from_high: number;
 }
 
 export const ScanUniverse = {

@@ -12,4 +12,10 @@ export interface SidebarItem {
   matchedFilters?: string[];
 
   watchlistItemId?: number;
+
+  relativeStrength?: number;
+
+  volumeRatio?: number;
+
+  distanceFromHigh?: number;
 }

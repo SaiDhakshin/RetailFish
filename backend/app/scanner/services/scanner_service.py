@@ -165,6 +165,24 @@ class ScannerService:
                     score=score,
                     matched_filters=matched_filters,
                     details=details,
+                    relative_strength=cache.relative_strength,
+                    volume_ratio=(
+                        float(candles[-1].volume)
+                        / cache.volume_sma20
+                        if cache.volume_sma20 > 0
+                        else 0
+                    ),
+
+                    distance_from_high=(
+                        (
+                            float(candles[-1].close)
+                            / cache.fifty_two_week_high
+                            - 1
+                        )
+                        * 100
+                        if cache.fifty_two_week_high > 0
+                        else 0
+                    ),
                 )
             )
 
@@ -172,5 +190,6 @@ class ScannerService:
             key=lambda result: result.score,
             reverse=True,
         )
+        print('scanner results:', results[0])
 
         return results

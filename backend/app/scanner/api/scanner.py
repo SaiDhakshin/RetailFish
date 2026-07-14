@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 
 from app.scanner.schemas.scan_request import ScanRequest
-from app.scanner.schemas.scan_response import ScanResponse
+from app.scanner.schemas.scan_response import ScanDetailResponse, ScanResponse
 
 from app.scanner.models.scan import Scan
 
@@ -71,6 +71,16 @@ def run_scan(
             symbol=result.symbol,
             score=result.score,
             matched_filters=result.matched_filters,
+            details=[
+                ScanDetailResponse(
+                    filter=detail.filter,
+                    value=detail.value,
+                )
+                for detail in result.details
+            ],
+            relative_strength=result.relative_strength,
+            volume_ratio=result.volume_ratio,
+            distance_from_high=result.distance_from_high,
         )
         for result in results
     ]

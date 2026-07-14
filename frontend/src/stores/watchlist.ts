@@ -10,7 +10,7 @@ import {
   renameWatchlist,
 } from "@/services/watchlists.service";
 
-import { getQuote } from "@/services/quotes.service";
+import { getQuote, getBulkQuotes } from "@/services/quotes.service";
 
 import type { Watchlist, WatchlistItem } from "@/types/watchlist";
 
@@ -69,10 +69,21 @@ export const useWatchlistStore = defineStore("watchlists", {
       }
     },
 
-    async loadQuotes() {
-      const requests = this.items.map((item) => this.loadQuote(item.symbol));
+    async loadQuotes(symbols?: string[]) {
+      const quoteSymbols = symbols ?? this.items.map((item) => item.symbol);
 
-      await Promise.all(requests);
+      if (quoteSymbols.length === 0) {
+        return;
+      }
+
+      const quotes = await getBulkQuotes(quoteSymbols);
+
+      console.log("Quotes:", quotes);
+      console.log(Array.isArray(quotes));
+
+      for (const quote of quotes) {
+        this.quotes[quote.symbol] = quote;
+      }
     },
 
     async selectWatchlist(watchlist: Watchlist) {

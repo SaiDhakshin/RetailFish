@@ -11,7 +11,11 @@ from app.clients.market_data_provider import (
 )
 from app.schemas.quote import QuoteResponse
 from app.services.quote_service import QuoteService
-from app.schemas.quote import BulkQuoteResponse
+from app.schemas.quote import (
+    BulkQuoteRequest,
+    BulkQuoteResponse,
+    QuoteResponse,
+)
 
 router = APIRouter(
     prefix="/quotes",
@@ -69,4 +73,21 @@ def get_quotes(
 
     return BulkQuoteResponse(
         quotes=quotes,
+    )
+
+@router.post(
+    "/bulk",
+    response_model=BulkQuoteResponse,
+)
+def get_bulk_quotes(
+    request: BulkQuoteRequest,
+    db: Session = Depends(get_db),
+    provider: MarketDataProvider = Depends(
+        get_market_data_provider,
+    ),
+):
+    return get_quotes(
+        symbols=",".join(request.symbols),
+        db=db,
+        provider=provider,
     )

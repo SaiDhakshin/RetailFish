@@ -18,6 +18,9 @@ from app.dto.market_data import (
     MarketDataDTO,
 )
 
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import as_completed
+
 
 class YahooFinanceClient(MarketDataProvider):
     """
@@ -194,26 +197,29 @@ class YahooFinanceClient(MarketDataProvider):
         Return quotes for multiple symbols.
         """
 
-        quotes = []
+        quotes: list[QuoteResponse] = []
 
-        for symbol in symbols:
-
-            try:
-
-                quote = self.fetch_quote(
+        with ThreadPoolExecutor(max_workers=20) as executor:
+            futures = {
+                executor.submit(
+                    self.fetch_quote,
                     symbol,
-                )
+                ): symbol
+                for symbol in symbols
+            }
 
-                quotes.append(
-                    quote,
-                )
+            for future in as_completed(futures):
+                symbol = futures[future]
 
-            except Exception:
-
-                logger.exception(
-                    "Failed quote for %s",
-                    symbol,
-                )
+                try:
+                    quotes.append(
+                        future.result()
+                    )
+                except Exception:
+                    logger.exception(
+                        "Failed quote for %s",
+                        symbol,
+                    )
 
         return quotes
 

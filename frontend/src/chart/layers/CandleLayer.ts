@@ -43,6 +43,16 @@ export class CandleLayer {
     this.series.setData([]);
   }
 
+  public getSeries(): ISeriesApi<"Candlestick"> {
+    return this.series;
+  }
+
+  public resetPriceScale(): void {
+    this.series.applyOptions({
+      autoscaleInfoProvider: () => null,
+    });
+  }
+
   private toChartData(candles: Candle[]): CandlestickData<UTCTimestamp>[] {
     return candles
       .map((candle) => ({

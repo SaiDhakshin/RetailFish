@@ -53,12 +53,16 @@ onMounted(() => {
   engine.setCandles(props.candles);
 });
 
+function resetZoom() {
+  engine?.resetZoom();
+}
+
 watch(
   () => props.candles,
 
   (candles) => {
     engine?.setCandles(candles);
-    
+
     // Trigger resize after candles are set
     nextTick(() => {
       if (chartContainer.value && engine) {
@@ -94,6 +98,10 @@ watch(
     engine?.setVolumeVisible(visible);
   },
 );
+
+defineExpose({
+  resetZoom,
+});
 
 onBeforeUnmount(() => {
   engine?.destroy();

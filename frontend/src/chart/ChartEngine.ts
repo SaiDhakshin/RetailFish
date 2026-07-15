@@ -7,6 +7,7 @@ import type { IndicatorConfig, IndicatorType } from "@/types/indicator";
 import { CandleLayer } from "./layers/CandleLayer";
 import { IndicatorManager } from "./managers/IndicatorManager";
 import { VolumeLayer } from "./layers/VolumeLayer";
+import type { LogicalRange } from "lightweight-charts";
 
 export class ChartEngine {
   private readonly container: HTMLElement;
@@ -22,6 +23,8 @@ export class ChartEngine {
   private candles: Candle[] = [];
 
   private resizeObserver: ResizeObserver | null = null;
+
+  private initialVisibleRange: LogicalRange | null = null;
 
   constructor(container: HTMLElement, indicators: Indicator[]) {
     this.container = container;
@@ -118,13 +121,23 @@ export class ChartEngine {
   public setCandles(candles: Candle[]): void {
     this.candles = candles;
 
+    this.initialVisibleRange = null;
+
     this.candleLayer.setData(candles);
 
     this.volumeLayer.setData(candles);
 
     this.indicatorManager.update(candles);
 
+    this.candleLayer.resetPriceScale();
+
+    this.chart.priceScale("right").applyOptions({
+      autoScale: true,
+    });
+
     this.chart.timeScale().fitContent();
+
+    this.initialVisibleRange = this.chart.timeScale().getVisibleLogicalRange();
   }
 
   public updateIndicatorConfigs(
@@ -163,5 +176,11 @@ export class ChartEngine {
 
   public setVolumeVisible(visible: boolean): void {
     this.volumeLayer.setVisible(visible);
+  }
+
+  public resetZoom(): void {
+    if (this.initialVisibleRange) {
+      this.chart.timeScale().setVisibleLogicalRange(this.initialVisibleRange);
+    }
   }
 }

@@ -8,6 +8,7 @@ import time
 import pandas as pd
 import yfinance as yf
 
+from app.core.logger import logger
 from app.clients.market_data_provider import MarketDataProvider
 
 from app.scanner.indicators.ema import calculate_ema
@@ -20,12 +21,33 @@ from app.dto.market_data import (
 
 from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import as_completed
+from app.core.cache import cache
+from app.cache.cache_ttl import CacheTTL
 
 
 class YahooFinanceClient(MarketDataProvider):
     """
     Yahoo Finance implementation of MarketDataProvider.
     """
+
+    @staticmethod
+    def historical_ttl(
+        timeframe: str,
+    ) -> int:
+
+        mapping = {
+            "1m": CacheTTL.HISTORICAL_1M,
+            "5m": CacheTTL.HISTORICAL_5M,
+            "15m": CacheTTL.HISTORICAL_15M,
+            "1h": CacheTTL.HISTORICAL_1H,
+            "1d": CacheTTL.HISTORICAL_1D,
+            "1wk": CacheTTL.HISTORICAL_1W,
+        }
+
+        return mapping.get(
+            timeframe,
+            CacheTTL.HISTORICAL_1D,
+        )
 
     INTERVAL_MAP = {
         "1m": "1m",
@@ -64,6 +86,18 @@ class YahooFinanceClient(MarketDataProvider):
         limit: int = 1000,
         start: datetime | None = None,
     ) -> list[MarketDataDTO]:
+        
+        cache_key = (
+            f"history:"
+            f"{symbol}:"
+            f"{timeframe}:"
+            f"{limit}"
+        )
+
+        cached = cache.get(cache_key)
+
+        if cached is not None:
+            return cached
 
         interval = self.INTERVAL_MAP.get(timeframe)
 
@@ -104,7 +138,17 @@ class YahooFinanceClient(MarketDataProvider):
                         if candle.timestamp > start
                     ]
 
-                return candles[-limit:]
+                candles = candles[-limit:]
+
+                cache.set(
+                    key=cache_key,
+                    value=candles,
+                    ttl_seconds=self.historical_ttl(
+                        timeframe,
+                    )
+                )
+
+                return candles
 
             except Exception as exc:
                 last_error = exc

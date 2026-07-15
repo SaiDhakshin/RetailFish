@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, nextTick } from "vue";
+import { computed, onMounted, ref, nextTick, watch } from "vue";
 
 import ScannerControls from "@/components/ScannerControls.vue";
 import ScannerSkeleton from "@/components/ScannerSkeleton.vue";
@@ -7,6 +7,7 @@ import ScannerSort from "@/components/ScannerSort.vue";
 
 import { useWatchlistStore } from "@/stores/watchlist";
 import { useScannerStore } from "@/stores/scanner";
+import { useQuoteStore } from "@/stores/quote";
 import {
   useKeyboardShortcuts,
   scrollElementIntoView,
@@ -24,6 +25,8 @@ const emit = defineEmits<{
 const store = useWatchlistStore();
 
 const scannerStore = useScannerStore();
+
+const quoteStore = useQuoteStore();
 
 const watchlists = computed(() => store.watchlists);
 
@@ -45,13 +48,9 @@ const items = computed<SidebarItem[]>(() => {
   }));
 });
 
-const quotes = computed(() => store.quotes);
-
 const selectedWatchlist = computed(() => store.selectedWatchlist);
 
 const mode = ref<"watchlist" | "scanner">("watchlist");
-
-let refreshTimer: number | undefined;
 
 const scannerControlsRef = ref<InstanceType<typeof ScannerControls> | null>(
   null,
@@ -66,16 +65,34 @@ onMounted(async () => {
     emit("selected", items.value[0].symbol);
   }
 
-  refreshTimer = window.setInterval(async () => {
-    await store.loadQuotes();
-  }, 30000);
+  void quoteStore.setActiveSymbols(store.items.map((item) => item.symbol));
 });
 
-onUnmounted(() => {
-  if (refreshTimer) {
-    clearInterval(refreshTimer);
-  }
-});
+watch(
+  () => store.items,
+  () => {
+    if (mode.value === "watchlist") {
+      void quoteStore.setActiveSymbols(store.items.map((item) => item.symbol));
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+watch(
+  [() => mode.value, () => scannerStore.results] as const,
+  ([currentMode, results]) => {
+    if (currentMode === "scanner") {
+      void quoteStore.setActiveSymbols(results.map((item) => item.symbol));
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 async function selectWatchlist(id: number) {
   const watchlist = watchlists.value.find((w) => w.id === id);
@@ -104,7 +121,7 @@ function selectSymbol(item: SidebarItem) {
 }
 
 function quoteFor(symbol: string): Quote | undefined {
-  return quotes.value[symbol];
+  return quoteStore.quote(symbol);
 }
 
 function quoteClass(quote?: Quote): string {
@@ -125,9 +142,15 @@ function quoteClass(quote?: Quote): string {
 
 async function showScanner() {
   mode.value = "scanner";
+
+  if (scannerStore.results.length > 0) {
+    await quoteStore.setActiveSymbols(
+      scannerStore.results.map((item) => item.symbol),
+    );
+  }
 }
 
-function showWatchlists() {
+async function showWatchlists() {
   mode.value = "watchlist";
 
   if (store.items.length > 0) {
@@ -135,6 +158,8 @@ function showWatchlists() {
 
     emit("selected", store.items[0].symbol);
   }
+
+  await quoteStore.setActiveSymbols(store.items.map((item) => item.symbol));
 }
 
 async function addToWatchlist(symbol: string) {
@@ -149,35 +174,10 @@ function isInWatchlist(symbol: string) {
   return store.items.some((item) => item.symbol === symbol);
 }
 
-function badgeLabel(filter: string) {
-  switch (filter) {
-    case "ema_alignment":
-      return "EMA";
-
-    case "volume_breakout":
-      return "VOL";
-
-    case "relative_strength":
-      return "RS";
-
-    case "fifty_two_week_high":
-      return "52W";
-
-    case "cup_handle":
-      return "CUP";
-
-    case "vcp":
-      return "VCP";
-
-    default:
-      return filter;
-  }
-}
-
 async function runScan(request: ScanRequest) {
   await scannerStore.scan(request);
 
-  await store.loadQuotes(scannerStore.results.map((r) => r.symbol));
+  await quoteStore.setActiveSymbols(scannerStore.results.map((r) => r.symbol));
 
   if (scannerStore.results.length > 0) {
     scannerStore.selectSymbol(scannerStore.results[0].symbol);
@@ -249,7 +249,7 @@ function handleAddToWatchlist(): void {
   }
 }
 
-async function handleRemoveFromWatchlist(): void {
+async function handleRemoveFromWatchlist(): Promise<void> {
   if (mode.value === "watchlist" && selectedSymbol.value) {
     const item = store.items.find((i) => i.symbol === selectedSymbol.value);
     if (item && confirm(`Remove ${selectedSymbol.value} from watchlist?`)) {

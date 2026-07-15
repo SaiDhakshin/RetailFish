@@ -10,11 +10,9 @@ import {
   renameWatchlist,
 } from "@/services/watchlists.service";
 
-import { getQuote, getBulkQuotes } from "@/services/quotes.service";
+import { useQuoteStore } from "@/stores/quote";
 
 import type { Watchlist, WatchlistItem } from "@/types/watchlist";
-
-import type { Quote } from "@/types/quote";
 
 export const useWatchlistStore = defineStore("watchlists", {
   state: () => ({
@@ -23,8 +21,6 @@ export const useWatchlistStore = defineStore("watchlists", {
     selectedWatchlist: null as Watchlist | null,
 
     items: [] as WatchlistItem[],
-
-    quotes: {} as Record<string, Quote>,
 
     loading: false,
 
@@ -49,40 +45,16 @@ export const useWatchlistStore = defineStore("watchlists", {
 
     async loadItems(watchlistId: number) {
       this.loading = true;
+      const quoteStore = useQuoteStore();
 
       try {
         this.items = await getItems(watchlistId);
 
-        await this.loadQuotes();
+        await quoteStore.setActiveSymbols(
+          this.items.map((item) => item.symbol),
+        );
       } finally {
         this.loading = false;
-      }
-    },
-
-    async loadQuote(symbol: string) {
-      try {
-        const quote = await getQuote(symbol);
-
-        this.quotes[symbol] = quote;
-      } catch (error) {
-        console.error(`Failed loading quote for ${symbol}`, error);
-      }
-    },
-
-    async loadQuotes(symbols?: string[]) {
-      const quoteSymbols = symbols ?? this.items.map((item) => item.symbol);
-
-      if (quoteSymbols.length === 0) {
-        return;
-      }
-
-      const quotes = await getBulkQuotes(quoteSymbols);
-
-      console.log("Quotes:", quotes);
-      console.log(Array.isArray(quotes));
-
-      for (const quote of quotes) {
-        this.quotes[quote.symbol] = quote;
       }
     },
 
@@ -102,8 +74,6 @@ export const useWatchlistStore = defineStore("watchlists", {
       this.selectedWatchlist = watchlist;
 
       this.items = [];
-
-      this.quotes = {};
     },
 
     async renameWatchlist(id: number, name: string) {
@@ -130,12 +100,12 @@ export const useWatchlistStore = defineStore("watchlists", {
           await this.loadItems(this.selectedWatchlist.id);
         } else {
           this.items = [];
-          this.quotes = {};
         }
       }
     },
 
     async addSymbol(watchlistId: number, symbol: string) {
+      const quoteStore = useQuoteStore();
       try {
         await addSymbol(watchlistId, {
           symbol,
@@ -144,7 +114,9 @@ export const useWatchlistStore = defineStore("watchlists", {
         if (this.selectedWatchlist?.id === watchlistId) {
           this.items = await getItems(watchlistId);
 
-          await this.loadQuotes();
+          await quoteStore.setActiveSymbols(
+            this.items.map((item) => item.symbol),
+          );
         }
       } catch (error: any) {
         if (error.response?.status === 409) {
@@ -161,12 +133,13 @@ export const useWatchlistStore = defineStore("watchlists", {
       if (!this.selectedWatchlist) {
         return;
       }
+      const quoteStore = useQuoteStore();
 
       await removeSymbol(this.selectedWatchlist.id, instrumentId);
 
       this.items = await getItems(this.selectedWatchlist.id);
 
-      await this.loadQuotes();
+      await quoteStore.setActiveSymbols(this.items.map((item) => item.symbol));
     },
 
     selectSymbol(symbol: string) {

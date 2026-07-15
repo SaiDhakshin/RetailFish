@@ -16,7 +16,24 @@
             <TimeframeSelector v-model="selectedTimeframe" />
             <IndicatorToolbar />
             <SearchBox @selected="onSearchSelected" />
-            <button :disabled="!selectedSymbol" @click="showDialog = true" class="add-btn">
+            <div class="quote-controls">
+              <label>
+                Quote Mode
+                <select v-model="quoteMode">
+                  <option value="manual">Manual</option>
+                  <option value="polling">Polling</option>
+                  <option value="realtime" disabled>
+                    Realtime (Coming Soon)
+                  </option>
+                </select>
+              </label>
+              <button type="button" @click="refreshQuotes">Refresh</button>
+            </div>
+            <button
+              :disabled="!selectedSymbol"
+              @click="showDialog = true"
+              class="add-btn"
+            >
               Add to Watchlist
             </button>
           </div>
@@ -44,6 +61,7 @@ import IndicatorToolbar from "@/components/IndicatorToolbar.vue";
 
 import SearchBox from "@/components/SearchBox.vue";
 import TimeframeSelector from "@/components/TimeframeSelector.vue";
+import { useQuoteStore, type QuoteMode } from "@/stores/quote";
 // import TradingChart from "@/components/TradingChart.vue";
 import TradingChart from "@/chart/TradingChart.vue";
 import WatchlistSidebar from "@/components/WatchlistSidebar.vue";
@@ -58,6 +76,7 @@ import type { Instrument } from "@/types/instrument";
 import type { TimeFrame } from "@/types/timeframe";
 
 const scannerStore = useScannerStore();
+const quoteStore = useQuoteStore();
 
 const scannerResult = computed(() => scannerStore.selectedResult);
 
@@ -66,6 +85,11 @@ const candles = ref<Candle[]>([]);
 const selectedTimeframe = ref<TimeFrame>("1d");
 
 const selectedSymbol = ref<string | null>(null);
+
+const quoteMode = computed<QuoteMode>({
+  get: () => quoteStore.mode,
+  set: (value) => void quoteStore.setQuoteMode(value),
+});
 
 const showDialog = ref(false);
 
@@ -95,6 +119,10 @@ watch(selectedTimeframe, async () => {
     selectedTimeframe.value,
   );
 });
+
+function refreshQuotes() {
+  void quoteStore.refreshActiveSymbols();
+}
 </script>
 
 <style scoped>
@@ -140,17 +168,37 @@ watch(selectedTimeframe, async () => {
   max-height: 48px;
 }
 
-.add-btn {
-  padding: 6px 12px;
+.quote-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.quote-controls label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.quote-controls select,
+.quote-controls button {
+  height: 28px;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--text);
   border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
   font-family: var(--mono);
-  transition: all 0.2s;
-  white-space: nowrap;
+  font-size: 12px;
+  padding: 0 8px;
+  cursor: pointer;
+}
+
+.quote-controls button:hover {
+  background: rgba(52, 199, 89, 0.08);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .add-btn:hover:not(:disabled) {

@@ -20,6 +20,8 @@ from app.scanner.constants import MIN_CANDLES_REQUIRED
 from app.scanner.indicators.relative_strength import (
     calculate_relative_strength,
 )
+from app.core.cache import cache
+from app.cache.cache_ttl import CacheTTL
 
 class ScannerService:
     """
@@ -46,6 +48,21 @@ class ScannerService:
     ) -> list[ScanResult]:
 
         results: list[ScanResult] = []
+
+        cache_key = (
+            f"scanner:"
+            f"{scan.universe.value}:"
+            f"{timeframe}:"
+            f"{','.join(sorted(
+                filter.value
+                for filter in scan.filters
+            ))}"
+        )
+
+        cached = cache.get(cache_key)
+
+        if cached is not None:
+            return cached
 
         instruments = self._repository.get_instruments()
 
@@ -85,7 +102,7 @@ class ScannerService:
             if len(candles) < MIN_CANDLES_REQUIRED:
                 continue
 
-            cache = IndicatorCache(
+            indicator_cache = IndicatorCache(
                 ema20=calculate_ema(
                     candles,
                     20,
@@ -113,7 +130,7 @@ class ScannerService:
 
             context = ScanContext(
                 benchmark_candles=benchmark_candles,
-                indicators=cache,
+                indicators=indicator_cache,
             )            
 
             matched_filters: list[str] = []
@@ -132,7 +149,7 @@ class ScannerService:
                 matched = strategy.matches(
                     candles,
                     context,
-                    cache,
+                    indicator_cache,
                 )
 
                 if not matched:
@@ -146,14 +163,14 @@ class ScannerService:
                     strategy.detail(
                         candles,
                         context,
-                        cache,
+                        indicator_cache,
                     )
                 )
 
                 score += strategy.score(
                     candles,
                     context,
-                    cache,
+                    indicator_cache,
                 )
 
             if not matched_filters:
@@ -165,22 +182,22 @@ class ScannerService:
                     score=score,
                     matched_filters=matched_filters,
                     details=details,
-                    relative_strength=cache.relative_strength,
+                    relative_strength=indicator_cache.relative_strength,
                     volume_ratio=(
                         float(candles[-1].volume)
-                        / cache.volume_sma20
-                        if cache.volume_sma20 > 0
+                        / indicator_cache.volume_sma20
+                        if indicator_cache.volume_sma20 > 0
                         else 0
                     ),
 
                     distance_from_high=(
                         (
                             float(candles[-1].close)
-                            / cache.fifty_two_week_high
+                            / indicator_cache.fifty_two_week_high
                             - 1
                         )
                         * 100
-                        if cache.fifty_two_week_high > 0
+                        if indicator_cache.fifty_two_week_high > 0
                         else 0
                     ),
                 )
@@ -191,5 +208,11 @@ class ScannerService:
             reverse=True,
         )
         print('scanner results:', results[0])
+
+        cache.set(
+            key=cache_key,
+            value=results,
+            ttl_seconds=CacheTTL.SCANNER_RESULTS
+        )
 
         return results

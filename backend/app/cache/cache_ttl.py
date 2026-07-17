@@ -6,7 +6,7 @@ class CacheTTL:
 
     QUOTE = 15
 
-    SCANNER_RESULTS = 30000
+    SCANNER_RESULTS = 60
 
     HISTORICAL_1M = 30
 

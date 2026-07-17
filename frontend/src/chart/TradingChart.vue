@@ -9,8 +9,6 @@ import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 
 import { ChartEngine } from "@/chart/ChartEngine";
 
-import { EMAIndicator } from "@/chart/indicators/EMAIndicator";
-
 import { useChartStore } from "@/stores/chart";
 
 import { useIndicatorStore } from "@/stores/indicator";
@@ -21,6 +19,7 @@ import type { Candle } from "@/types/candle";
 
 const props = defineProps<{
   candles: Candle[];
+  overlays?: import("@/types/overlay").ChartOverlay[];
 }>();
 
 const chartContainer = ref<HTMLDivElement | null>(null);
@@ -51,6 +50,7 @@ onMounted(() => {
   engine.setVolumeVisible(chartStore.showVolume);
 
   engine.setCandles(props.candles);
+  engine.setOverlays(props.overlays ?? []);
 });
 
 function resetZoom() {
@@ -62,8 +62,7 @@ watch(
 
   (candles) => {
     engine?.setCandles(candles);
-
-    // Trigger resize after candles are set
+    engine?.setOverlays(props.overlays ?? []);
     nextTick(() => {
       if (chartContainer.value && engine) {
         const width = chartContainer.value.clientWidth;
@@ -87,6 +86,16 @@ watch(
     engine?.updateIndicatorConfigs(configs);
   },
 
+  {
+    deep: true,
+  },
+);
+
+watch(
+  () => props.overlays,
+  (overlays) => {
+    engine?.setOverlays(overlays ?? []);
+  },
   {
     deep: true,
   },

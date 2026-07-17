@@ -1,11 +1,13 @@
 import { ColorType, createChart, type IChartApi } from "lightweight-charts";
 
 import type { Candle } from "@/types/candle";
+import type { ChartOverlay } from "@/types/overlay";
 import type { Indicator } from "./Indicator";
 import type { IndicatorConfig, IndicatorType } from "@/types/indicator";
 
 import { CandleLayer } from "./layers/CandleLayer";
 import { IndicatorManager } from "./managers/IndicatorManager";
+import { OverlayManager } from "./managers/OverlayManager";
 import { VolumeLayer } from "./layers/VolumeLayer";
 import type { LogicalRange } from "lightweight-charts";
 
@@ -17,6 +19,8 @@ export class ChartEngine {
   private readonly candleLayer: CandleLayer;
 
   private readonly indicatorManager: IndicatorManager;
+
+  private readonly overlayManager: OverlayManager;
 
   private readonly volumeLayer: VolumeLayer;
 
@@ -72,7 +76,6 @@ export class ChartEngine {
       rightPriceScale: {
         borderVisible: true,
         borderColor: "#1d1d1f",
-        textColor: "#a1a1a1",
       },
 
       timeScale: {
@@ -80,13 +83,14 @@ export class ChartEngine {
         borderColor: "#1d1d1f",
         timeVisible: true,
         secondsVisible: false,
-        textColor: "#a1a1a1",
       },
     });
 
     this.candleLayer = new CandleLayer(this.chart);
 
     this.indicatorManager = new IndicatorManager(this.chart);
+
+    this.overlayManager = new OverlayManager(this.chart);
 
     this.volumeLayer = new VolumeLayer(this.chart);
 
@@ -140,6 +144,15 @@ export class ChartEngine {
     this.initialVisibleRange = this.chart.timeScale().getVisibleLogicalRange();
   }
 
+  public setOverlays(overlays: ChartOverlay[]): void {
+    if (!this.candles.length || !overlays || overlays.length === 0) {
+      this.overlayManager.setOverlays([]);
+      return;
+    }
+
+    this.overlayManager.setOverlays(overlays);
+  }
+
   public updateIndicatorConfigs(
     configs: Record<IndicatorType, IndicatorConfig>,
   ): void {
@@ -170,6 +183,8 @@ export class ChartEngine {
     }
 
     this.indicatorManager.destroy();
+
+    this.overlayManager.destroy();
 
     this.chart.remove();
   }

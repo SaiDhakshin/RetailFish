@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Any
 from app.scanner.models.scan_detail import (
     ScanDetail,
 )
@@ -19,3 +20,5 @@ class ScanResult:
     volume_ratio: float = 0
 
     distance_from_high: float = 0
+
+    overlays: list[dict[str, Any]] = field(default_factory=list)

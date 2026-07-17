@@ -87,9 +87,7 @@ export const useScannerStore = defineStore("scanner", {
       this.selectedSymbol = symbol;
       // Also update selectedResult for consistency
       const result = this.results.find((r) => r.symbol === symbol);
-      if (result) {
-        this.selectedResult = result;
-      }
+      this.selectedResult = result ?? null;
     },
 
     selectResult(result: ScannerResult) {

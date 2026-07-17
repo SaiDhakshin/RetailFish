@@ -3,6 +3,8 @@ export interface ScanDetail {
   value: string;
 }
 
+import type { ChartOverlay } from "@/types/overlay";
+
 export interface ScannerResult {
   symbol: string;
 
@@ -17,6 +19,8 @@ export interface ScannerResult {
   volume_ratio: number;
 
   distance_from_high: number;
+
+  overlays?: ChartOverlay[];
 }
 
 export const ScanUniverse = {

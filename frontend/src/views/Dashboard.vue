@@ -38,7 +38,10 @@
             </button>
           </div>
 
-          <TradingChart :candles="candles" />
+          <TradingChart
+            :candles="candles"
+            :overlays="scannerResult?.overlays ?? []"
+          />
           <ScannerDetails :result="scannerResult" />
         </div>
       </template>
@@ -95,6 +98,7 @@ const showDialog = ref(false);
 
 async function loadCandles(symbol: string) {
   selectedSymbol.value = symbol;
+  scannerStore.selectSymbol(symbol);
 
   candles.value = await getCandles(symbol, selectedTimeframe.value);
 

@@ -30,6 +30,7 @@ from app.scanner.strategies.relative_strength import (
     RelativeStrengthStrategy,
 )
 from app.scanner.strategies.trend_template import TrendTemplateStrategy
+from app.scanner.strategies.cup_handle import CupHandleStrategy
 
 router = APIRouter(
     prefix="/scanner",
@@ -56,6 +57,7 @@ def run_scan(
             FiftyTwoWeekHighStrategy(),
             RelativeStrengthStrategy(),
             TrendTemplateStrategy(),
+            CupHandleStrategy(),
         ],
     )
 
@@ -81,6 +83,7 @@ def run_scan(
             relative_strength=result.relative_strength,
             volume_ratio=result.volume_ratio,
             distance_from_high=result.distance_from_high,
+            overlays=result.overlays,
         )
         for result in results
     ]

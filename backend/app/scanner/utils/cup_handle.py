@@ -11,8 +11,11 @@ from app.scanner.constants import (
     CUP_HANDLE_HANDLE_MAX_DURATION,
     CUP_HANDLE_HANDLE_MAX_RANGE,
     CUP_HANDLE_HANDLE_MIN_BARS,
-    CUP_HANDLE_MIN_DURATION,
+    CUP_HANDLE_HANDLE_LOOKBACK,
+    CUP_HANDLE_MAX_BREAKOUT_AGE,
     CUP_HANDLE_MAX_DURATION,
+    CUP_HANDLE_MAX_PATTERN_AGE,
+    CUP_HANDLE_MIN_DURATION,
     CUP_HANDLE_MIN_PRIOR_TREND_DAYS,
     CUP_HANDLE_MIN_PRIOR_TREND_GAIN,
     CUP_HANDLE_MAX_RIM_DIFF,
@@ -23,6 +26,7 @@ from app.scanner.constants import (
     CUP_HANDLE_MIN_NEAR_BOTTOM_BARS,
     CUP_HANDLE_RIGHT_RECOVERY_MIN,
     CUP_HANDLE_PIVOT_THRESHOLD,
+    CUP_HANDLE_SEARCH_WINDOW,
 )
 from app.scanner.models.pattern_result import PatternResult, PatternType
 
@@ -270,10 +274,14 @@ def detect_handle(
 
     upper_half_threshold = _handle_upper_half_threshold(candles, candidate)
     best_segment: HandleSegment | None = None
+    max_end = min(
+        len(candles),
+        start_index + min(CUP_HANDLE_HANDLE_MAX_DURATION, CUP_HANDLE_HANDLE_LOOKBACK),
+    )
 
     for end_index in range(
         start_index + CUP_HANDLE_HANDLE_MIN_BARS - 1,
-        min(len(candles), start_index + CUP_HANDLE_HANDLE_MAX_DURATION),
+        max_end,
     ):
         segment = candles[start_index:end_index + 1]
         highs = [_to_float(c.high) for c in segment]
@@ -312,6 +320,62 @@ def detect_handle(
     return best_segment
 
 
+def detect_forming_handle(
+    candles: list[OHLCV],
+    candidate: CupCandidate,
+) -> HandleSegment | None:
+    start_index = candidate.right.index + 1
+    if start_index >= len(candles):
+        return None
+
+    if start_index < len(candles) - CUP_HANDLE_HANDLE_LOOKBACK:
+        start_index = len(candles) - CUP_HANDLE_HANDLE_LOOKBACK
+
+    segment = candles[start_index:]
+    highs = [_to_float(c.high) for c in segment]
+    lows = [_to_float(c.low) for c in segment]
+    closes = [_to_float(c.close) for c in segment]
+
+    segment_high = max(highs)
+    segment_low = min(lows)
+    if segment_high <= 0:
+        return None
+
+    if segment_high >= candidate.right.price * 1.02:
+        return None
+
+    depth = (segment_high - segment_low) / segment_high
+    range_ratio = (segment_high - segment_low) / segment_high
+    if depth > CUP_HANDLE_HANDLE_MAX_DEPTH:
+        return None
+
+    if range_ratio > CUP_HANDLE_HANDLE_MAX_RANGE:
+        return None
+
+    if len(segment) > min(CUP_HANDLE_HANDLE_MAX_DURATION, CUP_HANDLE_HANDLE_LOOKBACK):
+        return None
+
+    return HandleSegment(
+        start_index=start_index,
+        end_index=len(candles) - 1,
+        depth=depth,
+        range_ratio=range_ratio,
+        max_high=segment_high,
+        min_low=segment_low,
+    )
+
+
+def _find_breakout_index(
+    candles: list[OHLCV],
+    breakout_price: float,
+    start_index: int,
+) -> int | None:
+    for index in range(start_index, len(candles)):
+        if _to_float(candles[index].close) >= breakout_price:
+            return index
+    return None
+
+
 def _score_cup_handle(
     cup_metrics: dict[str, float],
     handle: HandleSegment,
@@ -329,23 +393,39 @@ def _score_cup_handle(
     return min(100, int(round(total)))
 
 
+def _format_time(timestamp: datetime) -> str:
+    return timestamp.isoformat()
+
+
 def detect_cup_handle(
     candles: list[OHLCV],
 ) -> PatternResult | None:
+    if len(candles) > CUP_HANDLE_SEARCH_WINDOW:
+        candles = candles[-CUP_HANDLE_SEARCH_WINDOW:]
+
     pivots = detect_pivots(candles)
     if not pivots:
         return None
 
     candidates = generate_cup_candidates(candles, pivots)
     best_result: PatternResult | None = None
-    best_score = -inf
+    best_sort_key: tuple[int, int, int] | None = None
 
     for candidate in candidates:
         metrics = validate_cup(candles, candidate)
         if metrics is None:
             continue
 
-        handle = detect_handle(candles, candidate)
+        complete_handle = detect_handle(candles, candidate)
+        forming_handle = None
+        handle = complete_handle
+        is_forming = False
+        if handle is None:
+            forming_handle = detect_forming_handle(candles, candidate)
+            if forming_handle is not None:
+                handle = forming_handle
+                is_forming = True
+
         if handle is None:
             continue
 
@@ -354,14 +434,77 @@ def detect_cup_handle(
             continue
 
         breakout_price = candidate.right.price
-        duration_mid = (CUP_HANDLE_MIN_DURATION + CUP_HANDLE_MAX_DURATION) / 2
+        breakout_index = _find_breakout_index(candles, breakout_price, handle.end_index + 1)
+        bars_since_breakout = None
+        is_breakout = False
+
+        if breakout_index is not None:
+            bars_since_breakout = len(candles) - 1 - breakout_index
+            if bars_since_breakout > CUP_HANDLE_MAX_BREAKOUT_AGE:
+                continue
+            is_breakout = True
+
+        bars_since_completion = len(candles) - 1 - handle.end_index
+        if not is_breakout and bars_since_completion > CUP_HANDLE_MAX_PATTERN_AGE:
+            continue
+
+        is_recent = not is_forming and not is_breakout
+        status = "Breakout" if is_breakout else "Forming" if is_forming else "Recent"
+        if is_breakout and bars_since_breakout is not None:
+            status_detail = f"{status} ({bars_since_breakout} bars ago)"
+        elif not is_forming and bars_since_completion > 0:
+            status_detail = f"{status} ({bars_since_completion} bars ago)"
+        else:
+            status_detail = status
+
+        age_penalty = max(0, bars_since_completion - 10) * 2
+        displayed_confidence = max(0, confidence - age_penalty)
+
         prior_score = min(max((metrics["prior_strength"] - CUP_HANDLE_MIN_PRIOR_TREND_GAIN) / 0.20, 0.0), 1.0) * 20
         depth_score = min(max((metrics["depth"] - CUP_HANDLE_DEPTH_MIN) / (CUP_HANDLE_DEPTH_MAX - CUP_HANDLE_DEPTH_MIN), 0.0), 1.0) * 15
+        duration_mid = (CUP_HANDLE_MIN_DURATION + CUP_HANDLE_MAX_DURATION) / 2
         duration_score = max(0.0, 1.0 - abs(metrics["duration"] - duration_mid) / duration_mid) * 10
         rim_score = max(0.0, 1.0 - metrics["rim_similarity"] / CUP_HANDLE_MAX_RIM_DIFF) * 15
         roundness_score = min(max(metrics["roundness"], 0.0), 1.0) * 15
         recovery_score = min(max((metrics["right_recovery"] - CUP_HANDLE_RIGHT_RECOVERY_MIN) / (1.0 - CUP_HANDLE_RIGHT_RECOVERY_MIN), 0.0), 1.0) * 10
         handle_score = max(0.0, 1.0 - handle.depth / CUP_HANDLE_HANDLE_MAX_DEPTH) * 15
+
+        cup_points = [
+            {
+                "time": _format_time(candles[pivot.index].timestamp),
+                "price": pivot.price,
+            }
+            for pivot in (candidate.left, candidate.bottom, candidate.right)
+        ]
+
+        handle_points = [
+            {
+                "time": _format_time(candles[index].timestamp),
+                "price": _to_float(candles[index].close),
+            }
+            for index in range(handle.start_index, handle.end_index + 1)
+        ]
+
+        label_price = candidate.right.price * 1.02
+        label_time = _format_time(candles[candidate.right.index].timestamp)
+        label_text = (
+            f"Cup & Handle | {status_detail} | "
+            f"Conf:{displayed_confidence} | "
+            f"Depth:{round(metrics['depth'] * 100)}% | "
+            f"Dur:{int(metrics['duration'])}"
+        )
+
+        overlay = {
+            "type": "cup_handle",
+            "cup": cup_points,
+            "handle": handle_points,
+            "breakout_price": breakout_price,
+            "label": {
+                "time": label_time,
+                "price": label_price,
+                "text": label_text,
+            },
+        }
 
         metadata = {
             "cup_depth": round(metrics["depth"], 4),
@@ -380,19 +523,32 @@ def detect_cup_handle(
             },
             "start_timestamp": candles[candidate.left.index].timestamp,
             "end_timestamp": candles[handle.end_index].timestamp,
+            "bars_since_completion": bars_since_completion,
+            "bars_since_breakout": bars_since_breakout,
+            "pattern_age": bars_since_completion,
+            "is_recent": is_recent,
+            "is_breakout": is_breakout,
+            "is_forming": is_forming,
+            "status": status,
         }
 
         result = PatternResult(
             pattern_type=PatternType.CUP_HANDLE,
-            confidence=confidence,
+            confidence=displayed_confidence,
             breakout_price=breakout_price,
             start_timestamp=candles[candidate.left.index].timestamp,
             end_timestamp=candles[handle.end_index].timestamp,
             metadata=metadata,
+            overlay=overlay,
         )
 
-        if confidence > best_score:
-            best_score = confidence
+        sort_key = (
+            0 if is_breakout else 1 if is_recent else 2,
+            bars_since_completion,
+            -displayed_confidence,
+        )
+        if best_sort_key is None or sort_key < best_sort_key:
+            best_sort_key = sort_key
             best_result = result
 
     return best_result

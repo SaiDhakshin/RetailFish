@@ -1,4 +1,5 @@
 from collections.abc import Iterable
+from typing import Any
 
 from app.models.instrument import Instrument
 
@@ -139,6 +140,8 @@ class ScannerService:
 
             details = []
 
+            overlays: list[dict[str, Any]] = []
+
             for filter_type in scan.filters:
 
                 strategy = self._strategies.get(filter_type)
@@ -161,6 +164,14 @@ class ScannerService:
 
                 details.append(
                     strategy.detail(
+                        candles,
+                        context,
+                        indicator_cache,
+                    )
+                )
+
+                overlays.extend(
+                    strategy.overlays(
                         candles,
                         context,
                         indicator_cache,
@@ -200,6 +211,7 @@ class ScannerService:
                         if indicator_cache.fifty_two_week_high > 0
                         else 0
                     ),
+                    overlays=overlays,
                 )
             )
 

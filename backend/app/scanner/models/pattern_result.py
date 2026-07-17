@@ -16,3 +16,4 @@ class PatternResult:
     start_timestamp: datetime
     end_timestamp: datetime
     metadata: dict[str, Any]
+    overlay: dict[str, Any] | None = None

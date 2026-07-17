@@ -83,6 +83,7 @@ def run_scan(
             relative_strength=result.relative_strength,
             volume_ratio=result.volume_ratio,
             distance_from_high=result.distance_from_high,
+            overlays=result.overlays,
         )
         for result in results
     ]

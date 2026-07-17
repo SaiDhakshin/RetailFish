@@ -1,4 +1,6 @@
-from pydantic import BaseModel
+from typing import Any
+
+from pydantic import BaseModel, Field
 
 
 class ScanDetailResponse(BaseModel):
@@ -21,3 +23,5 @@ class ScanResponse(BaseModel):
     volume_ratio: float
 
     distance_from_high: float
+
+    overlays: list[dict[str, Any]] = Field(default_factory=list)

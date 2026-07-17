@@ -19,11 +19,7 @@ import { useIndicatorStore } from "@/stores/indicator";
 import { calculateEMA } from "@/services/calculations/ema";
 
 import type { Candle } from "@/types/candle";
-import type {
-  CandlestickData,
-  LineData,
-  UTCTimestamp,
-} from "lightweight-charts";
+import type { CandlestickData, UTCTimestamp } from "lightweight-charts";
 
 const props = defineProps<{
   candles: Candle[];
@@ -104,7 +100,6 @@ function renderChart() {
     rightPriceScale: {
       borderVisible: true,
       borderColor: "#1d1d1f",
-      textColor: "#a1a1a1",
     },
 
     timeScale: {
@@ -112,7 +107,6 @@ function renderChart() {
       borderColor: "#1d1d1f",
       timeVisible: true,
       secondsVisible: false,
-      textColor: "#a1a1a1",
     },
   });
 

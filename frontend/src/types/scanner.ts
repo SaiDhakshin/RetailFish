@@ -40,6 +40,14 @@ export const ScanFilter = {
   RELATIVE_STRENGTH: "relative_strength",
   CUP_HANDLE: "cup_handle",
   VCP: "vcp",
+  DOUBLE_BOTTOM: "double_bottom",
+  DOUBLE_TOP: "double_top",
+  HEAD_SHOULDERS: "head_shoulders",
+  INVERSE_HEAD_SHOULDERS: "inverse_head_shoulders",
+  TRIANGLES: "triangles",
+  FLAGS: "flags",
+  HARMONICS: "harmonics",
+  TRENDLINES: "trendlines",
   TREND_TEMPLATE: "trend_template",
 } as const;
 

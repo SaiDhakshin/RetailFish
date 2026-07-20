@@ -535,7 +535,9 @@ def detect_cup_handle(
         result = PatternResult(
             pattern_type=PatternType.CUP_HANDLE,
             confidence=displayed_confidence,
+            score=displayed_confidence,
             breakout_price=breakout_price,
+            breakout_status=status_detail,
             start_timestamp=candles[candidate.left.index].timestamp,
             end_timestamp=candles[handle.end_index].timestamp,
             metadata=metadata,

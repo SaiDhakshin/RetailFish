@@ -31,6 +31,7 @@ from app.scanner.strategies.relative_strength import (
 )
 from app.scanner.strategies.trend_template import TrendTemplateStrategy
 from app.scanner.strategies.cup_handle import CupHandleStrategy
+from app.scanner.strategies.vcp import VCPStrategy
 
 router = APIRouter(
     prefix="/scanner",
@@ -58,6 +59,7 @@ def run_scan(
             RelativeStrengthStrategy(),
             TrendTemplateStrategy(),
             CupHandleStrategy(),
+            VCPStrategy(),
         ],
     )
 

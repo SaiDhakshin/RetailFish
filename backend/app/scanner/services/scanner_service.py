@@ -86,6 +86,11 @@ class ScannerService:
 
         for instrument in instruments:
 
+            # Temporary debug
+            if instrument.symbol == "^NSEI":
+                print("Skipping benchmark")
+                continue
+
             candles = self._repository.get_candles(
                 instrument.id,
                 timeframe,
@@ -219,7 +224,10 @@ class ScannerService:
             key=lambda result: result.score,
             reverse=True,
         )
-        print('scanner results:', results[0])
+        if results:
+            print('scanner results:', results[0])
+        else:
+            print('scanner results: no matches found')
 
         cache.set(
             key=cache_key,
